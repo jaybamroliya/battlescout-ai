@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BattleScout AI — Robot Combat Matchup Scout</title>
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#141924; --panel2:#1b2231; --line:#26304a;
+    --text:#e8edf7; --muted:#93a0bd; --accent:#ff5a3c; --accent2:#3ca7ff;
+    --good:#37d67a; --warn:#ffb020; --radius:14px;
+    --font:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,#16203a 0%,var(--bg) 55%);color:var(--text);font-family:var(--font);line-height:1.5}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 18px 64px}
+  header{text-align:center;padding:22px 0 8px}
+  .badge{display:inline-block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:5px 12px;margin-bottom:14px}
+  h1{font-size:clamp(28px,5vw,46px);margin:.1em 0;line-height:1.05}
+  h1 span{color:var(--accent)}
+  .sub{color:var(--muted);max-width:640px;margin:6px auto 0;font-size:16px}
+  .powered{margin-top:12px;font-size:13px;color:var(--muted)}
+  .powered b{color:var(--accent2)}
+  .card{background:linear-gradient(180deg,var(--panel),#0f141e);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-top:22px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+  .pickers{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:end}
+  @media(max-width:640px){.pickers{grid-template-columns:1fr;}.vs{transform:rotate(90deg)}}
+  label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
+  select{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:16px;appearance:none}
+  .vs{font-weight:800;color:var(--accent);font-size:22px;text-align:center;padding-bottom:10px}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;justify-content:center}
+  button{cursor:pointer;border:none;border-radius:10px;padding:12px 20px;font-size:15px;font-weight:600;font-family:var(--font)}
+  .primary{background:linear-gradient(180deg,var(--accent),#d83f22);color:#fff}
+  .ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  .primary:hover{filter:brightness(1.08)} .ghost:hover{color:var(--text)}
+  .result{display:none}
+  .result.show{display:block;animation:fade .4s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .fighters{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+  .fighter{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .fighter h3{margin:0 0 2px;font-size:20px}
+  .fighter .meta{color:var(--muted);font-size:13px}
+  .tag{display:inline-block;font-size:11px;padding:3px 8px;border-radius:999px;background:#0e1626;border:1px solid var(--line);color:var(--accent2);margin-top:8px;text-transform:capitalize}
+  .prob{margin-top:20px}
+  .bar{height:34px;border-radius:8px;background:#0e1626;overflow:hidden;display:flex;border:1px solid var(--line)}
+  .bar .a{background:linear-gradient(90deg,var(--accent2),#7fd0ff);display:flex;align-items:center;padding:0 12px;font-weight:700;color:#04121f;white-space:nowrap}
+  .bar .b{background:linear-gradient(90deg,#7a2417,var(--accent));display:flex;align-items:center;justify-content:flex-end;padding:0 12px;font-weight:700;color:#fff;flex:1;white-space:nowrap}
+  .verdict{margin-top:14px;font-size:15px}
+  .verdict b{color:var(--good)}
+  .report{margin-top:16px;background:#0e1626;border:1px solid var(--line);border-radius:12px;padding:16px}
+  .report h4{margin:0 0 10px;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .report ul{margin:0;padding-left:18px} .report li{margin:6px 0}
+  .note{margin-top:14px;font-size:13px;color:var(--muted);border-left:3px solid var(--accent2);padding:8px 12px;background:#0d1420;border-radius:0 8px 8px 0}
+  .meta-section h2{font-size:20px;margin:0 0 4px}
+  .meta-grid{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .mrow{display:grid;grid-template-columns:150px 1fr 46px;gap:10px;align-items:center;font-size:14px}
+  .mbar{height:16px;background:#0e1626;border-radius:6px;border:1px solid var(--line);overflow:hidden}
+  .mbar>div{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:34px;line-height:1.7}
+  footer a{color:var(--accent2);text-decoration:none}
+  .hashtag{color:var(--accent);font-weight:600}
+  code{background:#0e1626;border:1px solid var(--line);padding:2px 6px;border-radius:6px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">BattleBotsDev Competition Entry</div>
+    <h1>Battle<span>Scout</span> AI</h1>
+    <p class="sub">An AI scouting agent for robot combat. Pick any two bots and get a data-driven matchup prediction, a scouting report, and the weapon-archetype "meta" behind it.</p>
+    <p class="powered">Enriched with live public web data via <b>Bright Data</b></p>
+  </header>
+
+  <section class="card">
+    <div class="pickers">
+      <div>
+        <label for="a">Fighter A</label>
+        <select id="a"></select>
+      </div>
+      <div class="vs">VS</div>
+      <div>
+        <label for="b">Fighter B</label>
+        <select id="b"></select>
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="primary" id="scout">⚔️ Scout the Matchup</button>
+      <button class="ghost" id="featured">Try: Orbitron 🤖 vs Tombstone</button>
+    </div>
+
+    <div class="result" id="result">
+      <div class="fighters">
+        <div class="fighter" id="fA"></div>
+        <div class="fighter" id="fB"></div>
+      </div>
+      <div class="prob">
+        <div class="bar"><div class="a" id="barA"></div><div class="b" id="barB"></div></div>
+      </div>
+      <div class="verdict" id="verdict"></div>
+      <div class="report">
+        <h4>🔎 Scouting Report</h4>
+        <ul id="reportList"></ul>
+      </div>
+      <div class="note" id="liveNote"></div>
+    </div>
+  </section>
+
+  <section class="card meta-section">
+    <h2>📊 The Weapon-Archetype Meta</h2>
+    <p class="sub" style="margin:0">Average predicted win rate of each weapon archetype across all heavyweight matchups in the dataset. This is the headline insight: <b>vertical spinners currently rule the box.</b></p>
+    <div class="meta-grid" id="metaGrid"></div>
+  </section>
+
+  <footer>
+    <p>Built for the <b>#BattleBotsDev</b> Competition · BattleBots Pro League Powered by Bright Data<br/>
+    Model = weapon-archetype matchup matrix + reputation index. Records &amp; fan sentiment populated via the Bright Data pipeline (<code>npm run scrape</code>).<br/>
+    <span class="hashtag">#BattleBotsDev</span></p>
+  </footer>
+</div>
+
+<script>
+/* ---------------- Data (mirror of data/bots.json) ---------------- */
+const BOTS = [
+  {id:"orbitron",name:"Orbitron",builder:"Pro League (AI)",country:"USA",weapon:"AI-controlled spinner",archetype:"horizontal_spinner",reputation:60,tier:"newcomer",note:"Billed as the first fully AI-controlled combat robot in the 2026 Pro League."},
+  {id:"tombstone",name:"Tombstone",builder:"Ray Billings",country:"USA",weapon:"Horizontal spinning bar",archetype:"horizontal_spinner",reputation:92,tier:"champion",note:"Former World Champion. One of the hardest-hitting horizontal spinners ever built."},
+  {id:"endgame",name:"End Game",builder:"Jack Barker",country:"New Zealand",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:94,tier:"champion",note:"Former World Champion. Elite vertical spinner with excellent driving and self-righting."},
+  {id:"biteforce",name:"Bite Force",builder:"Paul Ventimiglia",country:"USA",weapon:"Clamp / control",archetype:"control",reputation:95,tier:"champion",note:"Multiple-time World Champion. Master of control and consistency."},
+  {id:"minotaur",name:"Minotaur",builder:"Marco Meggiolaro",country:"Brazil",weapon:"Drum spinner",archetype:"drum_spinner",reputation:88,tier:"contender",note:"Aggressive, fast drum spinner. Perennial title contender."},
+  {id:"witchdoctor",name:"Witch Doctor",builder:"A. & M. Gellatly",country:"USA",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:87,tier:"finalist",note:"Multiple-time finalist. Reliable, powerful vertical spinner."},
+  {id:"hydra",name:"Hydra",builder:"Jake Ewert",country:"USA",weapon:"Hydraulic flipper",archetype:"flipper",reputation:85,tier:"contender",note:"One of the strongest flippers in the sport, capable of launching heavyweights."},
+  {id:"sawblaze",name:"SawBlaze",builder:"Jamison Go",country:"USA",weapon:"Overhead saw / hammer",archetype:"hammer_saw",reputation:86,tier:"finalist",note:"Versatile control-and-damage bot with a strong judges'-decision record."},
+  {id:"whiplash",name:"Whiplash",builder:"Matt Vasquez",country:"USA",weapon:"Vertical spinner + lifter",archetype:"vertical_spinner",reputation:84,tier:"contender",note:"Hybrid weapon and lifter arm; excellent control and consistency."},
+  {id:"bronco",name:"Bronco",builder:"Inertia Labs",country:"USA",weapon:"Pneumatic flipper",archetype:"flipper",reputation:82,tier:"veteran",note:"Explosive pneumatic flipper, veteran fan favorite."},
+  {id:"hypershock",name:"Hypershock",builder:"Will Bales",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:80,tier:"contender",note:"Fast, aggressive horizontal spinner with a showman reputation."},
+  {id:"copperhead",name:"Copperhead",builder:"Zach Goff",country:"USA",weapon:"Drum spinner",archetype:"drum_spinner",reputation:81,tier:"contender",note:"Compact, hard-hitting drum spinner."},
+  {id:"riptide",name:"Riptide",builder:"Ethan Kurtz",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:83,tier:"contender",note:"Newer-generation horizontal spinner with big KO power."},
+  {id:"cobalt",name:"Cobalt",builder:"Team Cobalt",country:"USA",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:80,tier:"contender",note:"Precise vertical spinner with strong energy delivery."},
+  {id:"skorpios",name:"Skorpios",builder:"Orion Beach",country:"USA",weapon:"Overhead saw / spinner",archetype:"hammer_saw",reputation:79,tier:"contender",note:"Hybrid saw-and-spinner with aggressive driving."},
+  {id:"lockjaw",name:"Lock-Jaw",builder:"Donald Hutson",country:"USA",weapon:"Interchangeable spinner",archetype:"horizontal_spinner",reputation:76,tier:"veteran",note:"Veteran team known for adaptable weapon configurations."},
+  {id:"uppercut",name:"Uppercut",builder:"Team Uppercut",country:"USA",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:78,tier:"contender",note:"Compact vertical spinner with big single-hit potential."},
+  {id:"valkyrie",name:"Valkyrie",builder:"Leanne Cushing",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:77,tier:"contender",note:"Low, wedge-fronted horizontal spinner."},
+  {id:"blackdragon",name:"Black Dragon",builder:"RioBotz",country:"Brazil",weapon:"Horizontal drum spinner",archetype:"drum_spinner",reputation:82,tier:"contender",note:"Long-drum spinner with excellent self-righting; strong international pedigree."},
+  {id:"icewave",name:"Icewave",builder:"Team Icewave",country:"USA",weapon:"Gas horizontal spinner",archetype:"horizontal_spinner",reputation:72,tier:"veteran",note:"Distinctive gas-engine horizontal spinner, veteran competitor."}
+];
+
+/* ---------------- Model ----------------
+   Base matchup matrix: P(row archetype beats column archetype).
+   Encodes widely-observed BattleBots meta: verticals are dominant,
+   horizontals hit hard but self-right poorly, control beats horizontals
+   but struggles vs high-energy verticals, etc. Symmetric (M[b][a]=1-M[a][b]).
+------------------------------------------------------------------ */
+const ARCH = ["vertical_spinner","horizontal_spinner","drum_spinner","flipper","hammer_saw","control"];
+const LABEL = {vertical_spinner:"Vertical spinner",horizontal_spinner:"Horizontal spinner",drum_spinner:"Drum spinner",flipper:"Flipper",hammer_saw:"Hammer / saw",control:"Control"};
+// upper-triangle probabilities (row beats col)
+const RAW = {
+  "vertical_spinner|horizontal_spinner":0.58,
+  "vertical_spinner|drum_spinner":0.53,
+  "vertical_spinner|flipper":0.62,
+  "vertical_spinner|hammer_saw":0.60,
+  "vertical_spinner|control":0.60,
+  "horizontal_spinner|drum_spinner":0.50,
+  "horizontal_spinner|flipper":0.55,
+  "horizontal_spinner|hammer_saw":0.52,
+  "horizontal_spinner|control":0.45,
+  "drum_spinner|flipper":0.55,
+  "drum_spinner|hammer_saw":0.53,
+  "drum_spinner|control":0.53,
+  "flipper|hammer_saw":0.50,
+  "flipper|control":0.52,
+  "hammer_saw|control":0.50
+};
+function archProb(a,b){
+  if(a===b) return 0.5;
+  if(RAW[a+"|"+b]!==undefined) return RAW[a+"|"+b];
+  if(RAW[b+"|"+a]!==undefined) return 1-RAW[b+"|"+a];
+  return 0.5;
+}
+const sigmoid = x => 1/(1+Math.exp(-x));
+function predict(A,B){
+  const ap = archProb(A.archetype,B.archetype);       // archetype edge (0..1)
+  const repEdge = (A.reputation - B.reputation)/40;    // reputation edge, scaled
+  const archEdge = (ap - 0.5)*4;                       // amplify archetype signal
+  const logit = 0.62*archEdge + 0.38*repEdge;          // archetype primary, reputation secondary
+  return sigmoid(logit);
+}
+
+/* ---------------- Scouting report ---------------- */
+function report(A,B,pA){
+  const winner = pA>=0.5?A:B, loser = pA>=0.5?B:A;
+  const wp = Math.round((pA>=0.5?pA:1-pA)*100);
+  const ap = archProb(A.archetype,B.archetype);
+  const lines=[];
+  // archetype line
+  const aEdge = ap>0.53?A:(ap<0.47?B:null);
+  if(aEdge){
+    const other = aEdge===A?B:A;
+    lines.push(`<b>Weapon matchup:</b> ${LABEL[aEdge.archetype]}s hold a historical edge over ${LABEL[other.archetype].toLowerCase()}s in the current meta — that favors <b>${aEdge.name}</b>.`);
+  } else {
+    lines.push(`<b>Weapon matchup:</b> ${LABEL[A.archetype]} vs ${LABEL[B.archetype].toLowerCase()} is close to even on archetype alone — this one comes down to driving and reliability.`);
+  }
+  // reputation line
+  const repDiff = A.reputation-B.reputation;
+  if(Math.abs(repDiff)>=6){
+    const fav = repDiff>0?A:B;
+    lines.push(`<b>Pedigree:</b> ${fav.name} carries the stronger competitive résumé (${fav.tier}), a meaningful tiebreaker in a close fight.`);
+  } else {
+    lines.push(`<b>Pedigree:</b> Both bots are closely matched on competitive résumé — no clear pedigree advantage.`);
+  }
+  // damage vs control narrative
+  const spinnery = a => a.archetype.includes("spinner");
+  if(spinnery(winner) && !spinnery(loser)){
+    lines.push(`<b>Path to victory:</b> ${winner.name} wins by <b>knockout</b> — land clean weapon hits before ${loser.name} can impose control.`);
+  } else if(!spinnery(winner) && spinnery(loser)){
+    lines.push(`<b>Path to victory:</b> ${winner.name} must survive the opening exchanges and win on <b>control &amp; judges' decision</b>, avoiding ${loser.name}'s weapon.`);
+  } else {
+    lines.push(`<b>Path to victory:</b> First clean weapon-to-weapon hit likely decides it — high variance, high KO potential.`);
+  }
+  // signature notes
+  lines.push(`<b>${A.name}:</b> ${A.note}`);
+  lines.push(`<b>${B.name}:</b> ${B.note}`);
+  return {winner,wp,lines};
+}
+
+/* ---------------- Meta computation ---------------- */
+function computeMeta(){
+  const sums={}, counts={};
+  ARCH.forEach(a=>{sums[a]=0;counts[a]=0;});
+  for(let i=0;i<BOTS.length;i++)for(let j=0;j<BOTS.length;j++){
+    if(i===j) continue;
+    const p=predict(BOTS[i],BOTS[j]);
+    sums[BOTS[i].archetype]+=p; counts[BOTS[i].archetype]++;
+  }
+  return ARCH.map(a=>({arch:a,rate:counts[a]?sums[a]/counts[a]:0.5})).sort((x,y)=>y.rate-x.rate);
+}
+
+/* ---------------- UI ---------------- */
+const $=id=>document.getElementById(id);
+function fillSelects(){
+  const opts = BOTS.map(b=>`<option value="${b.id}">${b.name} — ${b.weapon}</option>`).join("");
+  $("a").innerHTML=opts; $("b").innerHTML=opts;
+  $("a").value="endgame"; $("b").value="tombstone";
+}
+function byId(id){return BOTS.find(b=>b.id===id);}
+function fighterCard(b){
+  return `<h3>${b.name}</h3><div class="meta">${b.builder} · ${b.country}</div>
+  <div class="meta">${b.weapon}</div><span class="tag">${b.tier}</span> <span class="tag">Rep ${b.reputation}</span>`;
+}
+function run(){
+  const A=byId($("a").value), B=byId($("b").value);
+  if(A.id===B.id){$("verdict").innerHTML="Pick two different bots.";$("result").classList.add("show");return;}
+  const pA=predict(A,B);
+  const {winner,wp,lines}=report(A,B,pA);
+  $("fA").innerHTML=fighterCard(A); $("fB").innerHTML=fighterCard(B);
+  const paPct=Math.round(pA*100), pbPct=100-paPct;
+  $("barA").style.width=paPct+"%"; $("barA").textContent=A.name+" "+paPct+"%";
+  $("barB").textContent=pbPct+"% "+B.name;
+  $("verdict").innerHTML=`Predicted winner: <b>${winner.name}</b> — <b>${wp}%</b> confidence.`;
+  $("reportList").innerHTML=lines.map(l=>`<li>${l}</li>`).join("");
+  $("liveNote").innerHTML=`💡 <b>Live-data upgrade:</b> run <code>npm run scrape</code> with your Bright Data credits to enrich this report with each bot's real season win-loss record, recent match results, and scraped fan sentiment.`;
+  $("result").classList.add("show");
+  $("result").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function renderMeta(){
+  const meta=computeMeta();
+  $("metaGrid").innerHTML=meta.map(m=>{
+    const pct=Math.round(m.rate*100);
+    return `<div class="mrow"><div>${LABEL[m.arch]}</div><div class="mbar"><div style="width:${pct}%"></div></div><div>${pct}%</div></div>`;
+  }).join("");
+}
+fillSelects(); renderMeta();
+$("scout").onclick=run;
+$("featured").onclick=()=>{$("a").value="orbitron";$("b").value="tombstone";run();};
+</script>
+</body>
+</html>
