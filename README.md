@@ -15,11 +15,12 @@ Every BattleBots stats project shows the same thing: a bar chart of past wins. B
 
 The 2026 Pro League introduces **Orbitron, billed as the first fully AI-controlled combat robot**. So the signature demo is fitting: point an *AI scout* at the *AI robot* — `Orbitron vs Tombstone` — and see how autonomy stacks up against a former World Champion.
 
-## What it does
+## What it does (3 tabs)
 
-1. **Predicts matchups** using a transparent model: a weapon-archetype matchup matrix (vertical spinner, horizontal spinner, drum, flipper, hammer/saw, control) combined with a per-bot reputation index.
-2. **Writes a scouting report** — weapon matchup, pedigree, and each bot's path to victory (KO vs. control/judges' decision).
-3. **Surfaces the meta** — the average win rate of each weapon archetype across all matchups. Headline finding: **vertical spinners currently rule the box (54.5%)**, flippers sit at the bottom (46.9%) — consistent with real community consensus.
+1. **⚔️ Scout a Matchup** — pick any two of 38 heavyweights and get a win probability, a stat comparison (career win rate / KO rate / experience), and a written **scouting report** (weapon matchup, track record, finishing power, path to victory).
+   Model = weapon-archetype matchup matrix + career win rate + KO rate.
+2. **🏆 Leaderboard** — all bots ranked, with a **Meta Score** column unique to BattleScout AI: each bot's average predicted win probability against the *entire field*. It rewards a strong weapon archetype, not just a padded record — e.g. **End Game ranks #1 by Meta Score even though Bite Force has a higher raw win rate.**
+3. **📊 The Meta** — average win rate of each weapon archetype across all matchups. Headline finding: **vertical spinners rule the box (57.7%)**; control bots sit at the bottom (43.4%) — consistent with real community consensus.
 
 ## 🌐 How Bright Data is used (the core of this entry)
 

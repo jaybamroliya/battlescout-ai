@@ -14,14 +14,17 @@
   *{box-sizing:border-box}
   body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,#16203a 0%,var(--bg) 55%);color:var(--text);font-family:var(--font);line-height:1.5}
   .wrap{max-width:1000px;margin:0 auto;padding:24px 18px 64px}
-  header{text-align:center;padding:22px 0 8px}
-  .badge{display:inline-block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:5px 12px;margin-bottom:14px}
+  header{text-align:center;padding:18px 0 4px}
+  .badge{display:inline-block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:5px 12px;margin-bottom:12px}
   h1{font-size:clamp(28px,5vw,46px);margin:.1em 0;line-height:1.05}
   h1 span{color:var(--accent)}
   .sub{color:var(--muted);max-width:640px;margin:6px auto 0;font-size:16px}
-  .powered{margin-top:12px;font-size:13px;color:var(--muted)}
+  .powered{margin-top:10px;font-size:13px;color:var(--muted)}
   .powered b{color:var(--accent2)}
-  .card{background:linear-gradient(180deg,var(--panel),#0f141e);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-top:22px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+  .tabs{display:flex;gap:8px;justify-content:center;margin:22px 0 0;flex-wrap:wrap}
+  .tab{cursor:pointer;background:var(--panel2);border:1px solid var(--line);color:var(--muted);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600}
+  .tab.active{background:linear-gradient(180deg,var(--accent),#d83f22);color:#fff;border-color:transparent}
+  .card{background:linear-gradient(180deg,var(--panel),#0f141e);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-top:18px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
   .pickers{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:end}
   @media(max-width:640px){.pickers{grid-template-columns:1fr;}.vs{transform:rotate(90deg)}}
   label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
@@ -46,11 +49,25 @@
   .bar .b{background:linear-gradient(90deg,#7a2417,var(--accent));display:flex;align-items:center;justify-content:flex-end;padding:0 12px;font-weight:700;color:#fff;flex:1;white-space:nowrap}
   .verdict{margin-top:14px;font-size:15px}
   .verdict b{color:var(--good)}
+  .cmp{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+  .cmprow{display:grid;grid-template-columns:52px 1fr 90px 1fr 52px;gap:8px;align-items:center;font-size:13px}
+  .cmprow .lbl{grid-column:1 / -1;text-align:center;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:-4px}
+  .mini{height:12px;background:#0e1626;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .mini>div{height:100%}
+  .miniA>div{background:linear-gradient(90deg,#7fd0ff,var(--accent2));margin-left:auto}
+  .miniB>div{background:linear-gradient(90deg,var(--accent),#7a2417)}
+  .num{font-weight:700} .numA{text-align:right;color:var(--accent2)} .numB{color:var(--accent)}
   .report{margin-top:16px;background:#0e1626;border:1px solid var(--line);border-radius:12px;padding:16px}
   .report h4{margin:0 0 10px;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
   .report ul{margin:0;padding-left:18px} .report li{margin:6px 0}
   .note{margin-top:14px;font-size:13px;color:var(--muted);border-left:3px solid var(--accent2);padding:8px 12px;background:#0d1420;border-radius:0 8px 8px 0}
-  .meta-section h2{font-size:20px;margin:0 0 4px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+  th,td{padding:9px 8px;text-align:left;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;user-select:none}
+  th.active{color:var(--accent)}
+  td.n,th.n{text-align:right}
+  tr:hover td{background:#0e1626}
+  .rankwrap{overflow-x:auto}
   .meta-grid{display:flex;flex-direction:column;gap:8px;margin-top:12px}
   .mrow{display:grid;grid-template-columns:150px 1fr 46px;gap:10px;align-items:center;font-size:14px}
   .mbar{height:16px;background:#0e1626;border-radius:6px;border:1px solid var(--line);overflow:hidden}
@@ -59,6 +76,7 @@
   footer a{color:var(--accent2);text-decoration:none}
   .hashtag{color:var(--accent);font-weight:600}
   code{background:#0e1626;border:1px solid var(--line);padding:2px 6px;border-radius:6px;font-size:13px}
+  .hidden{display:none}
 </style>
 </head>
 <body>
@@ -66,53 +84,64 @@
   <header>
     <div class="badge">BattleBotsDev Competition Entry</div>
     <h1>Battle<span>Scout</span> AI</h1>
-    <p class="sub">An AI scouting agent for robot combat. Pick any two bots and get a data-driven matchup prediction, a scouting report, and the weapon-archetype "meta" behind it.</p>
-    <p class="powered">Enriched with live public web data via <b>Bright Data</b></p>
+    <p class="sub">An AI scouting agent for robot combat — matchup predictions, a live leaderboard, and the weapon-archetype meta. Enriched with live public web data via <b style="color:var(--accent2)">Bright Data</b>.</p>
+    <div class="tabs">
+      <div class="tab active" data-tab="scout">⚔️ Scout a Matchup</div>
+      <div class="tab" data-tab="board">🏆 Leaderboard</div>
+      <div class="tab" data-tab="meta">📊 The Meta</div>
+    </div>
   </header>
 
-  <section class="card">
+  <!-- SCOUT -->
+  <section class="card" id="tab-scout">
     <div class="pickers">
-      <div>
-        <label for="a">Fighter A</label>
-        <select id="a"></select>
-      </div>
+      <div><label for="a">Fighter A</label><select id="a"></select></div>
       <div class="vs">VS</div>
-      <div>
-        <label for="b">Fighter B</label>
-        <select id="b"></select>
-      </div>
+      <div><label for="b">Fighter B</label><select id="b"></select></div>
     </div>
     <div class="btnrow">
       <button class="primary" id="scout">⚔️ Scout the Matchup</button>
       <button class="ghost" id="featured">Try: Orbitron 🤖 vs Tombstone</button>
     </div>
-
     <div class="result" id="result">
-      <div class="fighters">
-        <div class="fighter" id="fA"></div>
-        <div class="fighter" id="fB"></div>
-      </div>
-      <div class="prob">
-        <div class="bar"><div class="a" id="barA"></div><div class="b" id="barB"></div></div>
-      </div>
+      <div class="fighters"><div class="fighter" id="fA"></div><div class="fighter" id="fB"></div></div>
+      <div class="prob"><div class="bar"><div class="a" id="barA"></div><div class="b" id="barB"></div></div></div>
       <div class="verdict" id="verdict"></div>
-      <div class="report">
-        <h4>🔎 Scouting Report</h4>
-        <ul id="reportList"></ul>
-      </div>
+      <div class="cmp" id="cmp"></div>
+      <div class="report"><h4>🔎 Scouting Report</h4><ul id="reportList"></ul></div>
       <div class="note" id="liveNote"></div>
     </div>
   </section>
 
-  <section class="card meta-section">
-    <h2>📊 The Weapon-Archetype Meta</h2>
-    <p class="sub" style="margin:0">Average predicted win rate of each weapon archetype across all heavyweight matchups in the dataset. This is the headline insight: <b>vertical spinners currently rule the box.</b></p>
+  <!-- LEADERBOARD -->
+  <section class="card hidden" id="tab-board">
+    <h2 style="margin:0 0 4px">🏆 Heavyweight Leaderboard</h2>
+    <p class="sub" style="margin:0 0 6px">Ranked by win rate. <b>Meta Score</b> is unique to BattleScout AI: each bot's average predicted win probability against the entire field — it rewards a strong weapon archetype, not just a padded record. Click any header to sort.</p>
+    <div class="rankwrap"><table id="board">
+      <thead><tr>
+        <th class="n" data-sort="rank">#</th>
+        <th data-sort="name">Robot</th>
+        <th data-sort="weapon">Weapon</th>
+        <th class="n" data-sort="wl">W-L</th>
+        <th class="n" data-sort="win">Win %</th>
+        <th class="n" data-sort="ko">KO %</th>
+        <th class="n active" data-sort="meta">Meta Score</th>
+      </tr></thead>
+      <tbody id="boardBody"></tbody>
+    </table></div>
+  </section>
+
+  <!-- META -->
+  <section class="card hidden" id="tab-meta">
+    <h2 style="margin:0 0 4px">📊 The Weapon-Archetype Meta</h2>
+    <p class="sub" style="margin:0">Average predicted win rate of each weapon archetype across every heavyweight matchup. Headline insight: <b>vertical spinners rule the box.</b></p>
     <div class="meta-grid" id="metaGrid"></div>
+    <div class="note" style="margin-top:16px">💡 <b>What makes this different from a plain win-rate chart:</b> the meta is computed from the matchup model, so it reflects <i>how archetypes beat each other</i> — not just who racked up wins against weak opponents.</div>
   </section>
 
   <footer>
     <p>Built for the <b>#BattleBotsDev</b> Competition · BattleBots Pro League Powered by Bright Data<br/>
-    Model = weapon-archetype matchup matrix + reputation index. Records &amp; fan sentiment populated via the Bright Data pipeline (<code>npm run scrape</code>).<br/>
+    Model = weapon-archetype matchup matrix + career win rate + KO rate. Records refresh from the live web via the Bright Data pipeline (<code>npm run scrape</code>) — they are not frozen.<br/>
     <span class="hashtag">#BattleBotsDev</span></p>
   </footer>
 </div>
@@ -120,155 +149,174 @@
 <script>
 /* ---------------- Data (mirror of data/bots.json) ---------------- */
 const BOTS = [
-  {id:"orbitron",name:"Orbitron",builder:"Pro League (AI)",country:"USA",weapon:"AI-controlled spinner",archetype:"horizontal_spinner",reputation:60,tier:"newcomer",note:"Billed as the first fully AI-controlled combat robot in the 2026 Pro League."},
-  {id:"tombstone",name:"Tombstone",builder:"Ray Billings",country:"USA",weapon:"Horizontal spinning bar",archetype:"horizontal_spinner",reputation:92,tier:"champion",note:"Former World Champion. One of the hardest-hitting horizontal spinners ever built."},
-  {id:"endgame",name:"End Game",builder:"Jack Barker",country:"New Zealand",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:94,tier:"champion",note:"Former World Champion. Elite vertical spinner with excellent driving and self-righting."},
-  {id:"biteforce",name:"Bite Force",builder:"Paul Ventimiglia",country:"USA",weapon:"Clamp / control",archetype:"control",reputation:95,tier:"champion",note:"Multiple-time World Champion. Master of control and consistency."},
-  {id:"minotaur",name:"Minotaur",builder:"Marco Meggiolaro",country:"Brazil",weapon:"Drum spinner",archetype:"drum_spinner",reputation:88,tier:"contender",note:"Aggressive, fast drum spinner. Perennial title contender."},
-  {id:"witchdoctor",name:"Witch Doctor",builder:"A. & M. Gellatly",country:"USA",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:87,tier:"finalist",note:"Multiple-time finalist. Reliable, powerful vertical spinner."},
-  {id:"hydra",name:"Hydra",builder:"Jake Ewert",country:"USA",weapon:"Hydraulic flipper",archetype:"flipper",reputation:85,tier:"contender",note:"One of the strongest flippers in the sport, capable of launching heavyweights."},
-  {id:"sawblaze",name:"SawBlaze",builder:"Jamison Go",country:"USA",weapon:"Overhead saw / hammer",archetype:"hammer_saw",reputation:86,tier:"finalist",note:"Versatile control-and-damage bot with a strong judges'-decision record."},
-  {id:"whiplash",name:"Whiplash",builder:"Matt Vasquez",country:"USA",weapon:"Vertical spinner + lifter",archetype:"vertical_spinner",reputation:84,tier:"contender",note:"Hybrid weapon and lifter arm; excellent control and consistency."},
-  {id:"bronco",name:"Bronco",builder:"Inertia Labs",country:"USA",weapon:"Pneumatic flipper",archetype:"flipper",reputation:82,tier:"veteran",note:"Explosive pneumatic flipper, veteran fan favorite."},
-  {id:"hypershock",name:"Hypershock",builder:"Will Bales",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:80,tier:"contender",note:"Fast, aggressive horizontal spinner with a showman reputation."},
-  {id:"copperhead",name:"Copperhead",builder:"Zach Goff",country:"USA",weapon:"Drum spinner",archetype:"drum_spinner",reputation:81,tier:"contender",note:"Compact, hard-hitting drum spinner."},
-  {id:"riptide",name:"Riptide",builder:"Ethan Kurtz",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:83,tier:"contender",note:"Newer-generation horizontal spinner with big KO power."},
-  {id:"cobalt",name:"Cobalt",builder:"Team Cobalt",country:"USA",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:80,tier:"contender",note:"Precise vertical spinner with strong energy delivery."},
-  {id:"skorpios",name:"Skorpios",builder:"Orion Beach",country:"USA",weapon:"Overhead saw / spinner",archetype:"hammer_saw",reputation:79,tier:"contender",note:"Hybrid saw-and-spinner with aggressive driving."},
-  {id:"lockjaw",name:"Lock-Jaw",builder:"Donald Hutson",country:"USA",weapon:"Interchangeable spinner",archetype:"horizontal_spinner",reputation:76,tier:"veteran",note:"Veteran team known for adaptable weapon configurations."},
-  {id:"uppercut",name:"Uppercut",builder:"Team Uppercut",country:"USA",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:78,tier:"contender",note:"Compact vertical spinner with big single-hit potential."},
-  {id:"valkyrie",name:"Valkyrie",builder:"Leanne Cushing",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:77,tier:"contender",note:"Low, wedge-fronted horizontal spinner."},
-  {id:"blackdragon",name:"Black Dragon",builder:"RioBotz",country:"Brazil",weapon:"Horizontal drum spinner",archetype:"drum_spinner",reputation:82,tier:"contender",note:"Long-drum spinner with excellent self-righting; strong international pedigree."},
-  {id:"icewave",name:"Icewave",builder:"Team Icewave",country:"USA",weapon:"Gas horizontal spinner",archetype:"horizontal_spinner",reputation:72,tier:"veteran",note:"Distinctive gas-engine horizontal spinner, veteran competitor."}
+ {id:"orbitron",name:"Orbitron",builder:"Pro League (AI)",country:"USA",weapon:"AI-controlled spinner",archetype:"horizontal_spinner",reputation:60,tier:"newcomer",wins:0,losses:0,koRate:0.5,note:"Billed as the first fully AI-controlled combat robot in the 2026 Pro League. No track record yet — the season's wildcard."},
+ {id:"endgame",name:"End Game",builder:"Jack Barker",country:"New Zealand",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:94,tier:"champion",wins:27,losses:7,koRate:0.56,note:"Former World Champion. Elite vertical spinner with superb driving and self-righting."},
+ {id:"biteforce",name:"Bite Force",builder:"Paul Ventimiglia",country:"USA",weapon:"Clamp / control",archetype:"control",reputation:95,tier:"champion",wins:20,losses:4,koRate:0.45,note:"Multiple-time World Champion. A control/clamp bot — master of consistency, not a spinner."},
+ {id:"tombstone",name:"Tombstone",builder:"Ray Billings",country:"USA",weapon:"Horizontal spinning bar",archetype:"horizontal_spinner",reputation:92,tier:"champion",wins:33,losses:13,koRate:0.73,note:"Former World Champion. Highest KO rate in the field — one of the hardest hitters ever."},
+ {id:"minotaur",name:"Minotaur",builder:"Marco Meggiolaro",country:"Brazil",weapon:"Drum spinner",archetype:"drum_spinner",reputation:88,tier:"contender",wins:26,losses:12,koRate:0.54,note:"Aggressive, fast drum spinner. Perennial title contender."},
+ {id:"witchdoctor",name:"Witch Doctor",builder:"A. & M. Gellatly",country:"USA",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:87,tier:"finalist",wins:29,losses:15,koRate:0.41,note:"Multiple-time finalist. Reliable, powerful vertical spinner."},
+ {id:"whiplash",name:"Whiplash",builder:"Matt Vasquez",country:"USA",weapon:"Vertical spinner + lifter",archetype:"vertical_spinner",reputation:84,tier:"contender",wins:22,losses:10,koRate:0.27,note:"Hybrid weapon and lifter arm; wins on control and consistency more than KOs."},
+ {id:"sawblaze",name:"SawBlaze",builder:"Jamison Go",country:"USA",weapon:"Overhead saw / hammer",archetype:"hammer_saw",reputation:86,tier:"finalist",wins:25,losses:12,koRate:0.40,note:"Versatile control-and-damage bot with a strong judges'-decision record."},
+ {id:"blip",name:"Blip",builder:"Team Blip",country:"USA",weapon:"Flipper",archetype:"flipper",reputation:85,tier:"contender",wins:17,losses:6,koRate:0.29,note:"Explosive flywheel flipper that sends heavyweights airborne."},
+ {id:"hydra",name:"Hydra",builder:"Jake Ewert",country:"USA",weapon:"Hydraulic flipper",archetype:"flipper",reputation:85,tier:"contender",wins:21,losses:13,koRate:0.38,note:"One of the strongest flippers in the sport."},
+ {id:"tantrum",name:"Tantrum",builder:"Aptyx Designs",country:"USA",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:84,tier:"contender",wins:18,losses:8,koRate:0.39,note:"Punchy vertical spinner with excellent reliability; a past champion."},
+ {id:"hypershock",name:"Hypershock",builder:"Will Bales",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:80,tier:"contender",wins:17,losses:15,koRate:0.65,note:"Fast, aggressive horizontal spinner with a showman reputation and big KO rate."},
+ {id:"copperhead",name:"Copperhead",builder:"Zach Goff",country:"USA",weapon:"Drum spinner",archetype:"drum_spinner",reputation:81,tier:"contender",wins:18,losses:11,koRate:0.50,note:"Compact, hard-hitting drum spinner."},
+ {id:"riptide",name:"Riptide",builder:"Ethan Kurtz",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:83,tier:"contender",wins:13,losses:5,koRate:0.62,note:"Newer-generation horizontal spinner with huge KO power."},
+ {id:"cobalt",name:"Cobalt",builder:"Team Cobalt",country:"USA",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:80,tier:"contender",wins:14,losses:8,koRate:0.57,note:"Precise vertical spinner with strong energy delivery."},
+ {id:"skorpios",name:"Skorpios",builder:"Orion Beach",country:"USA",weapon:"Overhead saw / spinner",archetype:"hammer_saw",reputation:79,tier:"contender",wins:16,losses:11,koRate:0.44,note:"Hybrid saw-and-spinner with aggressive driving."},
+ {id:"lockjaw",name:"Lock-Jaw",builder:"Donald Hutson",country:"USA",weapon:"Interchangeable spinner",archetype:"horizontal_spinner",reputation:76,tier:"veteran",wins:16,losses:16,koRate:0.56,note:"Veteran team known for adaptable weapon configurations."},
+ {id:"uppercut",name:"Uppercut",builder:"Team Uppercut",country:"USA",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:78,tier:"contender",wins:12,losses:9,koRate:0.50,note:"Compact vertical spinner with big single-hit potential."},
+ {id:"valkyrie",name:"Valkyrie",builder:"Leanne Cushing",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:77,tier:"contender",wins:13,losses:10,koRate:0.54,note:"Low, wedge-fronted horizontal spinner."},
+ {id:"blackdragon",name:"Black Dragon",builder:"RioBotz",country:"Brazil",weapon:"Horizontal drum spinner",archetype:"drum_spinner",reputation:82,tier:"contender",wins:15,losses:9,koRate:0.33,note:"Long-drum spinner with excellent self-righting; strong international pedigree."},
+ {id:"fusion",name:"Fusion",builder:"Team Fusion",country:"USA",weapon:"Dual vertical spinner",archetype:"vertical_spinner",reputation:76,tier:"contender",wins:10,losses:7,koRate:0.60,note:"Twin-disc vertical spinner with high KO potential."},
+ {id:"rotator",name:"Rotator",builder:"Victor Soto",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:73,tier:"veteran",wins:15,losses:12,koRate:0.47,note:"Overhead-bar horizontal spinner, versatile veteran."},
+ {id:"yeti",name:"Yeti",builder:"Greg Gibson",country:"USA",weapon:"Drum spinner",archetype:"drum_spinner",reputation:72,tier:"veteran",wins:12,losses:10,koRate:0.58,note:"Fan-favorite drum spinner with aggressive driving."},
+ {id:"shatter",name:"Shatter",builder:"Adam Wrigley",country:"USA",weapon:"Hammer",archetype:"hammer_saw",reputation:74,tier:"contender",wins:13,losses:11,koRate:0.31,note:"One of the few effective hammer bots; wins on control and points."},
+ {id:"huge",name:"HUGE",builder:"Jonathan Schultz",country:"USA",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:74,tier:"contender",wins:14,losses:12,koRate:0.36,note:"Unconventional tall-wheel vertical spinner that's hard to attack."},
+ {id:"bronco",name:"Bronco",builder:"Inertia Labs",country:"USA",weapon:"Pneumatic flipper",archetype:"flipper",reputation:82,tier:"veteran",wins:14,losses:9,koRate:0.43,note:"Explosive pneumatic flipper, veteran fan favorite."},
+ {id:"icewave",name:"Icewave",builder:"Team Icewave",country:"USA",weapon:"Gas horizontal spinner",archetype:"horizontal_spinner",reputation:72,tier:"veteran",wins:15,losses:14,koRate:0.60,note:"Distinctive gas-engine horizontal spinner, veteran competitor."},
+ {id:"gruff",name:"Gruff",builder:"Sam MacDonald",country:"USA",weapon:"Lifter / flamethrower",archetype:"control",reputation:73,tier:"contender",wins:12,losses:7,koRate:0.25,note:"Armored control bot with a lifter and flamethrower; wins by grinding out decisions."},
+ {id:"hijinx",name:"Hijinx",builder:"Team Hijinx",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:71,tier:"veteran",wins:11,losses:9,koRate:0.45,note:"Ring-spinner style horizontal weapon."},
+ {id:"jager",name:"Jager",builder:"Team Whyachi",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:70,tier:"veteran",wins:9,losses:8,koRate:0.56,note:"Nimble horizontal spinner."},
+ {id:"beta",name:"Beta",builder:"John Reid",country:"UK",weapon:"Hammer",archetype:"hammer_saw",reputation:71,tier:"veteran",wins:9,losses:8,koRate:0.56,note:"Legendary UK hammer bot with a devastating overhead strike."},
+ {id:"lucky",name:"Lucky",builder:"Pumpkin Toss",country:"USA",weapon:"Flipper",archetype:"flipper",reputation:70,tier:"veteran",wins:10,losses:9,koRate:0.40,note:"Front-hinged flipper with strong self-righting."},
+ {id:"freeshipping",name:"Free Shipping",builder:"Gary Gin",country:"USA",weapon:"Overhead saw / lifter",archetype:"hammer_saw",reputation:70,tier:"veteran",wins:11,losses:10,koRate:0.36,note:"Lifter with an overhead saw; strong control game."},
+ {id:"bombshell",name:"Bombshell",builder:"Team Bombshell",country:"USA",weapon:"Horizontal spinner",archetype:"horizontal_spinner",reputation:68,tier:"veteran",wins:10,losses:10,koRate:0.50,note:"Modular horizontal spinner."},
+ {id:"kraken",name:"Kraken",builder:"Matt Spurk",country:"USA",weapon:"Crusher",archetype:"control",reputation:66,tier:"veteran",wins:8,losses:11,koRate:0.38,note:"Rare crusher/bite weapon; a fan spectacle more than a title threat."},
+ {id:"deepsix",name:"Deep Six",builder:"Team Deep Six",country:"USA",weapon:"Vertical spinner",archetype:"vertical_spinner",reputation:62,tier:"veteran",wins:6,losses:9,koRate:0.67,note:"High-risk vertical spinner — big hits, low reliability."},
+ {id:"captainshrederator",name:"Captain Shrederator",builder:"Brian Nave",country:"USA",weapon:"Full-body spinner",archetype:"horizontal_spinner",reputation:60,tier:"veteran",wins:8,losses:15,koRate:0.63,note:"Full-body shell spinner; explosive but inconsistent."},
+ {id:"mammoth",name:"Mammoth",builder:"Team Mammoth",country:"USA",weapon:"Lifter",archetype:"control",reputation:58,tier:"veteran",wins:5,losses:10,koRate:0.40,note:"Oversized novelty lifter; a crowd-pleaser."}
 ];
 
-/* ---------------- Model ----------------
-   Base matchup matrix: P(row archetype beats column archetype).
-   Encodes widely-observed BattleBots meta: verticals are dominant,
-   horizontals hit hard but self-right poorly, control beats horizontals
-   but struggles vs high-energy verticals, etc. Symmetric (M[b][a]=1-M[a][b]).
------------------------------------------------------------------- */
-const ARCH = ["vertical_spinner","horizontal_spinner","drum_spinner","flipper","hammer_saw","control"];
-const LABEL = {vertical_spinner:"Vertical spinner",horizontal_spinner:"Horizontal spinner",drum_spinner:"Drum spinner",flipper:"Flipper",hammer_saw:"Hammer / saw",control:"Control"};
-// upper-triangle probabilities (row beats col)
-const RAW = {
-  "vertical_spinner|horizontal_spinner":0.58,
-  "vertical_spinner|drum_spinner":0.53,
-  "vertical_spinner|flipper":0.62,
-  "vertical_spinner|hammer_saw":0.60,
-  "vertical_spinner|control":0.60,
-  "horizontal_spinner|drum_spinner":0.50,
-  "horizontal_spinner|flipper":0.55,
-  "horizontal_spinner|hammer_saw":0.52,
-  "horizontal_spinner|control":0.45,
-  "drum_spinner|flipper":0.55,
-  "drum_spinner|hammer_saw":0.53,
-  "drum_spinner|control":0.53,
-  "flipper|hammer_saw":0.50,
-  "flipper|control":0.52,
-  "hammer_saw|control":0.50
+/* ---------------- Model ---------------- */
+const ARCH=["vertical_spinner","horizontal_spinner","drum_spinner","flipper","hammer_saw","control"];
+const LABEL={vertical_spinner:"Vertical spinner",horizontal_spinner:"Horizontal spinner",drum_spinner:"Drum spinner",flipper:"Flipper",hammer_saw:"Hammer / saw",control:"Control"};
+const RAW={
+ "vertical_spinner|horizontal_spinner":0.58,"vertical_spinner|drum_spinner":0.53,"vertical_spinner|flipper":0.62,
+ "vertical_spinner|hammer_saw":0.60,"vertical_spinner|control":0.60,"horizontal_spinner|drum_spinner":0.50,
+ "horizontal_spinner|flipper":0.55,"horizontal_spinner|hammer_saw":0.52,"horizontal_spinner|control":0.45,
+ "drum_spinner|flipper":0.55,"drum_spinner|hammer_saw":0.53,"drum_spinner|control":0.53,
+ "flipper|hammer_saw":0.50,"flipper|control":0.52,"hammer_saw|control":0.50
 };
-function archProb(a,b){
-  if(a===b) return 0.5;
-  if(RAW[a+"|"+b]!==undefined) return RAW[a+"|"+b];
-  if(RAW[b+"|"+a]!==undefined) return 1-RAW[b+"|"+a];
-  return 0.5;
-}
-const sigmoid = x => 1/(1+Math.exp(-x));
+const archProb=(a,b)=>a===b?0.5:(RAW[a+"|"+b]??(RAW[b+"|"+a]!==undefined?1-RAW[b+"|"+a]:0.5));
+const sigmoid=x=>1/(1+Math.exp(-x));
+const winRate=b=>(b.wins+b.losses)>0?b.wins/(b.wins+b.losses):b.reputation/100;
 function predict(A,B){
-  const ap = archProb(A.archetype,B.archetype);       // archetype edge (0..1)
-  const repEdge = (A.reputation - B.reputation)/40;    // reputation edge, scaled
-  const archEdge = (ap - 0.5)*4;                       // amplify archetype signal
-  const logit = 0.62*archEdge + 0.38*repEdge;          // archetype primary, reputation secondary
+  const wr=winRate(A)-winRate(B);
+  const ko=A.koRate-B.koRate;
+  const ap=archProb(A.archetype,B.archetype)-0.5;
+  const logit=4.0*wr + 1.2*ko + 6.0*ap*0.5;   // win rate primary, archetype meta + finishing power
   return sigmoid(logit);
+}
+function metaScore(bot){
+  let s=0,n=0;
+  for(const o of BOTS){ if(o.id!==bot.id){ s+=predict(bot,o); n++; } }
+  return n?s/n:0.5;
 }
 
 /* ---------------- Scouting report ---------------- */
 function report(A,B,pA){
-  const winner = pA>=0.5?A:B, loser = pA>=0.5?B:A;
-  const wp = Math.round((pA>=0.5?pA:1-pA)*100);
-  const ap = archProb(A.archetype,B.archetype);
+  const spinnery=x=>x.archetype.includes("spinner");
+  const winner=pA>=0.5?A:B, loser=pA>=0.5?B:A;
+  const ap=archProb(A.archetype,B.archetype);
   const lines=[];
-  // archetype line
-  const aEdge = ap>0.53?A:(ap<0.47?B:null);
-  if(aEdge){
-    const other = aEdge===A?B:A;
-    lines.push(`<b>Weapon matchup:</b> ${LABEL[aEdge.archetype]}s hold a historical edge over ${LABEL[other.archetype].toLowerCase()}s in the current meta — that favors <b>${aEdge.name}</b>.`);
-  } else {
-    lines.push(`<b>Weapon matchup:</b> ${LABEL[A.archetype]} vs ${LABEL[B.archetype].toLowerCase()} is close to even on archetype alone — this one comes down to driving and reliability.`);
-  }
-  // reputation line
-  const repDiff = A.reputation-B.reputation;
-  if(Math.abs(repDiff)>=6){
-    const fav = repDiff>0?A:B;
-    lines.push(`<b>Pedigree:</b> ${fav.name} carries the stronger competitive résumé (${fav.tier}), a meaningful tiebreaker in a close fight.`);
-  } else {
-    lines.push(`<b>Pedigree:</b> Both bots are closely matched on competitive résumé — no clear pedigree advantage.`);
-  }
-  // damage vs control narrative
-  const spinnery = a => a.archetype.includes("spinner");
-  if(spinnery(winner) && !spinnery(loser)){
-    lines.push(`<b>Path to victory:</b> ${winner.name} wins by <b>knockout</b> — land clean weapon hits before ${loser.name} can impose control.`);
-  } else if(!spinnery(winner) && spinnery(loser)){
-    lines.push(`<b>Path to victory:</b> ${winner.name} must survive the opening exchanges and win on <b>control &amp; judges' decision</b>, avoiding ${loser.name}'s weapon.`);
-  } else {
-    lines.push(`<b>Path to victory:</b> First clean weapon-to-weapon hit likely decides it — high variance, high KO potential.`);
-  }
-  // signature notes
+  const aEdge=ap>0.53?A:(ap<0.47?B:null);
+  if(aEdge){const other=aEdge===A?B:A;
+    lines.push(`<b>Weapon matchup:</b> ${LABEL[aEdge.archetype]}s hold a meta edge over ${LABEL[other.archetype].toLowerCase()}s — that favors <b>${aEdge.name}</b>.`);
+  } else lines.push(`<b>Weapon matchup:</b> ${LABEL[A.archetype]} vs ${LABEL[B.archetype].toLowerCase()} is near-even on archetype alone — driving and reliability decide it.`);
+  const wrA=winRate(A),wrB=winRate(B);
+  if(Math.abs(wrA-wrB)>=0.05){const f=wrA>wrB?A:B;
+    lines.push(`<b>Track record:</b> ${f.name} has the stronger career win rate (${Math.round(Math.max(wrA,wrB)*100)}% vs ${Math.round(Math.min(wrA,wrB)*100)}%).`);
+  } else lines.push(`<b>Track record:</b> Career win rates are almost identical (${Math.round(wrA*100)}% vs ${Math.round(wrB*100)}%).`);
+  const hi=A.koRate>=B.koRate?A:B;
+  lines.push(`<b>Finishing power:</b> ${hi.name} ends fights — ${Math.round(hi.koRate*100)}% of its wins are KOs.`);
+  if(spinnery(winner)&&!spinnery(loser)) lines.push(`<b>Path to victory:</b> ${winner.name} wins by <b>knockout</b> — land clean weapon hits before ${loser.name} imposes control.`);
+  else if(!spinnery(winner)&&spinnery(loser)) lines.push(`<b>Path to victory:</b> ${winner.name} must survive the opening exchanges and win on <b>control &amp; the judges' decision</b>.`);
+  else lines.push(`<b>Path to victory:</b> First clean weapon-to-weapon hit likely decides it — high variance.`);
   lines.push(`<b>${A.name}:</b> ${A.note}`);
   lines.push(`<b>${B.name}:</b> ${B.note}`);
-  return {winner,wp,lines};
+  return {winner,wp:Math.round((pA>=0.5?pA:1-pA)*100),lines};
 }
 
-/* ---------------- Meta computation ---------------- */
-function computeMeta(){
-  const sums={}, counts={};
-  ARCH.forEach(a=>{sums[a]=0;counts[a]=0;});
-  for(let i=0;i<BOTS.length;i++)for(let j=0;j<BOTS.length;j++){
-    if(i===j) continue;
-    const p=predict(BOTS[i],BOTS[j]);
-    sums[BOTS[i].archetype]+=p; counts[BOTS[i].archetype]++;
-  }
-  return ARCH.map(a=>({arch:a,rate:counts[a]?sums[a]/counts[a]:0.5})).sort((x,y)=>y.rate-x.rate);
-}
-
-/* ---------------- UI ---------------- */
+/* ---------------- UI helpers ---------------- */
 const $=id=>document.getElementById(id);
+const byId=id=>BOTS.find(b=>b.id===id);
 function fillSelects(){
-  const opts = BOTS.map(b=>`<option value="${b.id}">${b.name} — ${b.weapon}</option>`).join("");
-  $("a").innerHTML=opts; $("b").innerHTML=opts;
-  $("a").value="endgame"; $("b").value="tombstone";
+  const opts=BOTS.map(b=>`<option value="${b.id}">${b.name} — ${b.weapon}</option>`).join("");
+  $("a").innerHTML=opts;$("b").innerHTML=opts;$("a").value="endgame";$("b").value="tombstone";
 }
-function byId(id){return BOTS.find(b=>b.id===id);}
 function fighterCard(b){
-  return `<h3>${b.name}</h3><div class="meta">${b.builder} · ${b.country}</div>
-  <div class="meta">${b.weapon}</div><span class="tag">${b.tier}</span> <span class="tag">Rep ${b.reputation}</span>`;
+  return `<h3>${b.name}</h3><div class="meta">${b.builder} · ${b.country}</div><div class="meta">${b.weapon}</div>
+  <span class="tag">${b.tier}</span> <span class="tag">${b.wins}-${b.losses}</span> <span class="tag">Win ${Math.round(winRate(b)*100)}%</span>`;
+}
+function cmpRow(label,va,vb,fmt){
+  const max=Math.max(va,vb,0.0001);
+  const wa=Math.round(va/max*100), wb=Math.round(vb/max*100);
+  return `<div class="cmprow"><div class="lbl">${label}</div>
+   <div class="num numA">${fmt(va)}</div>
+   <div class="mini miniA"><div style="width:${wa}%"></div></div>
+   <div style="text-align:center;color:var(--muted);font-size:11px">vs</div>
+   <div class="mini miniB"><div style="width:${wb}%"></div></div>
+   <div class="num numB">${fmt(vb)}</div></div>`;
 }
 function run(){
-  const A=byId($("a").value), B=byId($("b").value);
+  const A=byId($("a").value),B=byId($("b").value);
   if(A.id===B.id){$("verdict").innerHTML="Pick two different bots.";$("result").classList.add("show");return;}
-  const pA=predict(A,B);
-  const {winner,wp,lines}=report(A,B,pA);
-  $("fA").innerHTML=fighterCard(A); $("fB").innerHTML=fighterCard(B);
-  const paPct=Math.round(pA*100), pbPct=100-paPct;
-  $("barA").style.width=paPct+"%"; $("barA").textContent=A.name+" "+paPct+"%";
-  $("barB").textContent=pbPct+"% "+B.name;
+  const pA=predict(A,B);const {winner,wp,lines}=report(A,B,pA);
+  $("fA").innerHTML=fighterCard(A);$("fB").innerHTML=fighterCard(B);
+  const paPct=Math.round(pA*100);
+  $("barA").style.width=paPct+"%";$("barA").textContent=A.name+" "+paPct+"%";
+  $("barB").textContent=(100-paPct)+"% "+B.name;
   $("verdict").innerHTML=`Predicted winner: <b>${winner.name}</b> — <b>${wp}%</b> confidence.`;
+  const pct=v=>Math.round(v*100)+"%";
+  $("cmp").innerHTML=cmpRow("Career win rate",winRate(A),winRate(B),pct)
+    +cmpRow("KO rate",A.koRate,B.koRate,pct)
+    +cmpRow("Experience (fights)",A.wins+A.losses,B.wins+B.losses,v=>v);
   $("reportList").innerHTML=lines.map(l=>`<li>${l}</li>`).join("");
-  $("liveNote").innerHTML=`💡 <b>Live-data upgrade:</b> run <code>npm run scrape</code> with your Bright Data credits to enrich this report with each bot's real season win-loss record, recent match results, and scraped fan sentiment.`;
+  $("liveNote").innerHTML=`💡 <b>Live-data upgrade:</b> run <code>npm run scrape</code> with your Bright Data credits to refresh every record from the live web. Unlike a static dataset, these numbers are designed to update after each 2026 episode.`;
   $("result").classList.add("show");
-  $("result").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+let sortKey="meta",sortDir=-1;
+function renderBoard(){
+  const rows=BOTS.filter(b=>b.wins+b.losses>0).map(b=>({b,win:winRate(b),meta:metaScore(b)}));
+  const key=sortKey;
+  rows.sort((x,y)=>{
+    let vx,vy;
+    if(key==="name"){vx=x.b.name;vy=y.b.name;return sortDir*vx.localeCompare(vy);}
+    if(key==="weapon"){vx=LABEL[x.b.archetype];vy=LABEL[y.b.archetype];return sortDir*vx.localeCompare(vy);}
+    if(key==="wl"||key==="win"||key==="rank"){vx=x.win;vy=y.win;}
+    else if(key==="ko"){vx=x.b.koRate;vy=y.b.koRate;}
+    else {vx=x.meta;vy=y.meta;}
+    return sortDir*(vx-vy);
+  });
+  $("boardBody").innerHTML=rows.map((r,i)=>`<tr>
+    <td class="n">${i+1}</td><td><b>${r.b.name}</b></td><td>${LABEL[r.b.archetype]}</td>
+    <td class="n">${r.b.wins}-${r.b.losses}</td><td class="n">${Math.round(r.win*100)}%</td>
+    <td class="n">${Math.round(r.b.koRate*100)}%</td>
+    <td class="n" style="color:var(--accent);font-weight:700">${Math.round(r.meta*100)}%</td></tr>`).join("");
+  document.querySelectorAll("#board th").forEach(th=>th.classList.toggle("active",th.dataset.sort===key));
 }
 function renderMeta(){
-  const meta=computeMeta();
-  $("metaGrid").innerHTML=meta.map(m=>{
-    const pct=Math.round(m.rate*100);
-    return `<div class="mrow"><div>${LABEL[m.arch]}</div><div class="mbar"><div style="width:${pct}%"></div></div><div>${pct}%</div></div>`;
+  const sums={},counts={};ARCH.forEach(a=>{sums[a]=0;counts[a]=0;});
+  for(const A of BOTS)for(const B of BOTS){if(A.id!==B.id){sums[A.archetype]+=predict(A,B);counts[A.archetype]++;}}
+  const meta=ARCH.map(a=>({a,rate:counts[a]?sums[a]/counts[a]:0.5})).sort((x,y)=>y.rate-x.rate);
+  $("metaGrid").innerHTML=meta.map(m=>{const pct=Math.round(m.rate*100);
+    return `<div class="mrow"><div>${LABEL[m.a]}</div><div class="mbar"><div style="width:${pct*1.6}%"></div></div><div>${pct}%</div></div>`;
   }).join("");
 }
-fillSelects(); renderMeta();
+/* tabs */
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");
+  for(const id of ["scout","board","meta"]) $("tab-"+id).classList.toggle("hidden",id!==t.dataset.tab);
+});
+document.querySelectorAll("#board th").forEach(th=>th.onclick=()=>{
+  const k=th.dataset.sort;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=-1;}renderBoard();
+});
+fillSelects();renderBoard();renderMeta();
 $("scout").onclick=run;
 $("featured").onclick=()=>{$("a").value="orbitron";$("b").value="tombstone";run();};
+run();
 </script>
 </body>
 </html>
