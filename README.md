@@ -4,7 +4,7 @@
 
 > Entry for the **#BattleBotsDev** Competition · *BattleBots Pro League Powered by Bright Data*
 
-**🔗 Live demo:** _[add your GitHub Pages URL here after deploying — see below]_
+**🔗 Live demo:** https://jaybamroliya.github.io/battlescout-ai/
 **🎥 Video walkthrough:** _[add your YouTube/LinkedIn/X links here]_
 
 ---
