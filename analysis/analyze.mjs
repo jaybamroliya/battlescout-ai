@@ -23,7 +23,7 @@ const RAW = {
 };
 const archProb = (a,b) => a===b?0.5:(RAW[a+"|"+b]??(RAW[b+"|"+a]!==undefined?1-RAW[b+"|"+a]:0.5));
 const sigmoid = x => 1/(1+Math.exp(-x));
-const winRate = b => (b.wins+b.losses)>0 ? b.wins/(b.wins+b.losses) : b.reputation/100;
+const winRate = b => (b.wins+b.losses)>0 ? b.wins/(b.wins+b.losses) : 0.5;
 function predict(A,B){
   const logit = 4.0*(winRate(A)-winRate(B)) + 1.2*(A.koRate-B.koRate) + 6.0*(archProb(A.archetype,B.archetype)-0.5)*0.5;
   return sigmoid(logit);

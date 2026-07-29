@@ -11,11 +11,11 @@ Record your screen (OBS, or Windows `Win+G` Game Bar) showing the live demo, plu
 
 **[0:00–0:10] Hook**
 > *On screen: the BattleScout AI header.*
-> "This is BattleScout AI — an AI scouting agent for BattleBots. You pick any two robots, and it predicts who wins and why. Let me show you."
+> "This is BattleScout AI — an AI scouting agent for BattleBots. You pick any two robots, and it predicts who wins and why, using real, source-cited data. Let me show you."
 
 **[0:10–0:30] The signature matchup**
 > *Click the "Orbitron vs Tombstone" button.*
-> "The 2026 Pro League has Orbitron — the first AI-controlled combat robot. So let's scout it against a former World Champion, Tombstone. Instantly we get a win probability, and a full scouting report — the weapon matchup, each bot's pedigree, and its path to victory."
+> "The 2026 Pro League has Orbitron — a Canadian bot from Hacksmith Industries, billed as the first AI-controlled combat robot. So let's scout it against a former World Champion, Tombstone. Instantly we get a win probability, and a full scouting report — the weapon matchup, each bot's pedigree, and its path to victory."
 
 **[0:30–0:50] Try another + the meta**
 > *Pick End Game vs Bite Force, click Scout. Then scroll to the meta chart.*

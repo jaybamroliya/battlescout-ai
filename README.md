@@ -20,7 +20,9 @@ The 2026 Pro League introduces **Orbitron, billed as the first fully AI-controll
 1. **⚔️ Scout a Matchup** — pick any two of 38 heavyweights and get a win probability, a stat comparison (career win rate / KO rate / experience), and a written **scouting report** (weapon matchup, track record, finishing power, path to victory).
    Model = weapon-archetype matchup matrix + career win rate + KO rate.
 2. **🏆 Leaderboard** — all bots ranked, with a **Meta Score** column unique to BattleScout AI: each bot's average predicted win probability against the *entire field*. It rewards a strong weapon archetype, not just a padded record — e.g. **End Game ranks #1 by Meta Score even though Bite Force has a higher raw win rate.**
-3. **📊 The Meta** — average win rate of each weapon archetype across all matchups. Headline finding: **vertical spinners rule the box (57.7%)**; control bots sit at the bottom (43.4%) — consistent with real community consensus.
+3. **📊 The Meta** — average win rate of each weapon archetype across all matchups. Headline finding: **vertical spinners rule the box (62.4%)**; control bots sit at the bottom — and this isn't a guess: **6 of the last 7 Giant Nut champions were spinners** (see [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)).
+
+All data is **researched and source-cited** with honest confidence labels (`official` / `cited` / `est`) — see [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
 
 ## 🌐 How Bright Data is used (the core of this entry)
 
