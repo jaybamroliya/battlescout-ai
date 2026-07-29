@@ -321,6 +321,16 @@ $("scout").onclick=run;
 $("featured").onclick=()=>{$("a").value="orbitron";$("b").value="tombstone";run();};
 run();
 
+// Direct-state view for clean captures: ?view=scout|board|meta  &pair=id1-id2
+const _q=new URLSearchParams(location.search);
+if(_q.has("view")){
+  const tab=n=>document.querySelector('.tab[data-tab="'+n+'"]').click();
+  const p=(_q.get("pair")||"").split("-");
+  if(p.length===2&&byId(p[0])&&byId(p[1])){$("a").value=p[0];$("b").value=p[1];run();}
+  const v=_q.get("view");
+  tab(v==="board"||v==="meta"?v:"scout");
+}
+
 // Auto-demo mode for screen recording / hands-off tour: add ?demo=1 to the URL.
 if(new URLSearchParams(location.search).has("demo")){
   const tab=n=>document.querySelector('.tab[data-tab="'+n+'"]').click();
