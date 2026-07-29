@@ -144,7 +144,7 @@
 
   <footer>
     <p>Built for the <b>#BattleBotsDev</b> Competition · BattleBots Pro League Powered by Bright Data<br/>
-    Model = weapon-archetype matchup matrix + career win rate + KO tendency. Records are researched &amp; source-cited; run <code>npm run scrape</code> (Bright Data Web Unlocker) to refresh them from the live web.<br/>
+    Model = weapon-archetype matchup matrix + career win rate + KO tendency. Records are researched &amp; source-cited, and refreshable from the live web via Bright Data's Web Unlocker.<br/>
     <span class="hashtag">#BattleBotsDev</span></p>
   </footer>
 </div>
@@ -278,7 +278,7 @@ function run(){
     +cmpRow("KO tendency",A.koRate,B.koRate,pct)
     +cmpRow("Experience (fights)",A.wins+A.losses,B.wins+B.losses,v=>v);
   $("reportList").innerHTML=lines.map(l=>`<li>${l}</li>`).join("");
-  $("liveNote").innerHTML=`💡 <b>Live-data upgrade:</b> run <code>npm run scrape</code> with your Bright Data credits to refresh every record from the live web — the numbers update after each 2026 episode instead of staying frozen.`;
+  $("liveNote").innerHTML=`💡 <b>Powered by Bright Data:</b> these records are collected from public pages through Bright Data's Web Unlocker — which gets past anti-bot blocks that stop a normal scraper (403 → 200). The dataset is built to refresh from the live web, so it can stay current through the 2026 season instead of being frozen.`;
   $("result").classList.add("show");
 }
 let sortKey="meta",sortDir=-1;
