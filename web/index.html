@@ -320,6 +320,18 @@ fillSelects();renderBoard();renderMeta();
 $("scout").onclick=run;
 $("featured").onclick=()=>{$("a").value="orbitron";$("b").value="tombstone";run();};
 run();
+
+// Auto-demo mode for screen recording / hands-off tour: add ?demo=1 to the URL.
+if(new URLSearchParams(location.search).has("demo")){
+  const tab=n=>document.querySelector('.tab[data-tab="'+n+'"]').click();
+  const pick=(x,y)=>{$("a").value=x;$("b").value=y;tab("scout");run();};
+  pick("orbitron","tombstone");
+  setTimeout(()=>tab("board"),7000);
+  setTimeout(()=>tab("meta"),13000);
+  setTimeout(()=>pick("biteforce","minotaur"),18000);
+  setTimeout(()=>tab("board"),25000);
+  setTimeout(()=>tab("meta"),31000);
+}
 </script>
 </body>
 </html>
