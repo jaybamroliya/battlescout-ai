@@ -4,3 +4,7 @@ scraper/.env
 .DS_Store
 data/bots.enriched.json
 scraper/evidence/
+
+# Personal working notes — keep local, not for the public repo
+docs/VIDEO_SCRIPT.md
+docs/SUBMISSION_CHECKLIST.md
