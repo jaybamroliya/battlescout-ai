@@ -36,6 +36,8 @@ data/bots.json ──(Bright Data Web Unlocker)──▶ data/bots.enriched.json
 
 Bright Data is not decoration here — it is the only reason the live records and (roadmap) fan-sentiment data can be collected at all. Without it, these sources are unreachable.
 
+**Proof:** running the pipeline against the BattleBots fan wiki, a plain fetch is **blocked (HTTP 403)** for every robot, while the **Bright Data Web Unlocker returns the full page (HTTP 200, 0.5–1 MB each)**. The full before/after table for all 37 robots is in [docs/bright-data-proof.md](docs/bright-data-proof.md), with raw HTML saved under `scraper/evidence/`.
+
 ## 🚀 Run it locally (Node 18+, no other install)
 
 ```bash

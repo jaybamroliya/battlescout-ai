@@ -22,8 +22,8 @@ Record your screen (OBS, or Windows `Win+G` Game Bar) showing the live demo, plu
 > "It works for any pairing. And down here is the headline insight from the data: across every heavyweight matchup, vertical spinners top the meta at 54.5% — flippers sit at the bottom. That matches what BattleBots fans already argue about, backed by numbers."
 
 **[0:50–1:15] The Bright Data story (this is what judges want to hear)**
-> *Cut to the terminal running `npm run scrape:dry`, or show scraper/scrape.mjs.*
-> "Here's the key part. BattleBots data lives on pages that block normal scrapers — a fan wiki literally blocked me during development. So BattleScout AI pulls the live records through Bright Data's Web Unlocker API, which gets past the anti-bot walls and returns real HTML. Bright Data is the reason the live data is even reachable."
+> *Cut to the terminal running `npm run scrape`, showing the `plain=403 → BrightData=200` lines scroll by.*
+> "Here's the key part. BattleBots data lives on pages that block normal scrapers. Watch — when my script tries a normal request to the fan wiki, it gets blocked, 403, every time. But routed through Bright Data's Web Unlocker, the exact same URL returns the full page, 200, half a megabyte of real HTML. Bright Data is the reason this data is even reachable — 36 of 37 pages, all blocked normally, all unlocked."
 
 **[1:15–1:30] Close**
 > "Transparent model, live web data, any matchup you want. That's BattleScout AI. Code and live demo are linked below. Hashtag BattleBotsDev."

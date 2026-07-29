@@ -3,3 +3,4 @@ scraper/.env
 *.log
 .DS_Store
 data/bots.enriched.json
+scraper/evidence/
