@@ -38,6 +38,21 @@ Bright Data is not decoration here — it is the only reason the live records an
 
 **Proof:** running the pipeline against the BattleBots fan wiki, a plain fetch is **blocked (HTTP 403)** for every robot, while the **Bright Data Web Unlocker returns the full page (HTTP 200, 0.5–1 MB each)**. The full before/after table for all 37 robots is in [docs/bright-data-proof.md](docs/bright-data-proof.md), with raw HTML saved under `scraper/evidence/`.
 
+### Architecture: no backend, by design
+
+| Layer | Where it runs | Network calls |
+|---|---|---|
+| **Web app** (`web/index.html`) | Entirely in the browser — static file, no server | **None.** The dataset is embedded, so the demo can't break at judging time |
+| **Bright Data pipeline** (`scraper/scrape.mjs`) | On your machine, **offline / ahead of time** | `POST api.brightdata.com/request` per robot |
+| **Analysis** (`analysis/analyze.mjs`) | Node, local | None |
+
+Two deliberate reasons for this split:
+
+1. **Reliability** — a static demo has nothing to keep running, so the live URL works forever (no cold starts, no expired hosting).
+2. **Security** — the Bright Data API token stays in `scraper/.env` (git-ignored) and is **never shipped to the browser**. Calling the API client-side would publicly expose the token.
+
+**Zero dependencies:** `package.json` has no `dependencies` — clone and run, no `npm install` required (Node 18+).
+
 ## 🚀 Run it locally (Node 18+, no other install)
 
 ```bash
