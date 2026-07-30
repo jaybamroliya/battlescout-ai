@@ -77,6 +77,32 @@
   #boardSearch:focus{outline:none;border-color:var(--accent2)}
   #boardSearch::placeholder{color:var(--muted)}
   .nores{color:var(--muted);padding:16px 8px;font-size:14px}
+  /* fight simulation */
+  .arena{margin-top:14px;background:#0e1626;border:1px solid var(--line);border-radius:12px;padding:16px}
+  .hprow{display:grid;grid-template-columns:150px 1fr 48px;gap:10px;align-items:center;margin:8px 0;font-size:14px}
+  .hpname{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hpbar{height:18px;background:#0a1120;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .hpbar>div{height:100%;width:100%;background:linear-gradient(90deg,var(--accent2),#7fd0ff);transition:width .45s ease}
+  .hpbar>div.b{background:linear-gradient(90deg,var(--accent),#ff9c7a)}
+  .hpnum{text-align:right;font-weight:700;color:var(--muted)}
+  .pbp{list-style:none;margin:14px 0 0;padding:0;font-size:14px}
+  .pbp li{padding:7px 10px;margin:6px 0;background:#0a1120;border-left:3px solid var(--line);border-radius:0 8px 8px 0;animation:fade .35s ease}
+  .pbp li.hit{border-left-color:var(--accent)} .pbp li.ko{border-left-color:var(--warn)}
+  .pbp li b{color:var(--text)}
+  .simresult{margin-top:12px;font-size:16px;font-weight:700}
+  /* ask */
+  #askInput{width:100%;margin-top:12px;background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:10px;padding:13px 14px;font-size:15px;font-family:var(--font);min-width:0}
+  #askInput:focus{outline:none;border-color:var(--accent2)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .chip{cursor:pointer;background:#0e1626;border:1px solid var(--line);color:var(--muted);
+    border-radius:999px;padding:7px 12px;font-size:12.5px}
+  .chip:hover{color:var(--text);border-color:var(--accent2)}
+  .answer{margin-top:14px;background:#0e1626;border:1px solid var(--line);border-radius:12px;padding:16px;font-size:15px;display:none}
+  .answer.show{display:block;animation:fade .35s ease}
+  .answer h4{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  .answer ul{margin:8px 0 0;padding-left:18px} .answer li{margin:5px 0}
+  .answer .src{margin-top:10px;font-size:12px;color:var(--muted)}
   .meta-grid{display:flex;flex-direction:column;gap:8px;margin-top:12px}
   .mrow{display:grid;grid-template-columns:150px 1fr 46px;gap:10px;align-items:center;font-size:14px}
   .mbar{height:16px;background:#0e1626;border-radius:6px;border:1px solid var(--line);overflow:hidden}
@@ -139,6 +165,7 @@
       <div class="tab active" data-tab="scout">⚔️ Scout a Matchup</div>
       <div class="tab" data-tab="board">🏆 Leaderboard</div>
       <div class="tab" data-tab="meta">📊 The Meta</div>
+      <div class="tab" data-tab="ask">🤖 Ask BattleScout</div>
     </div>
   </header>
 
@@ -159,6 +186,20 @@
       <div class="verdict" id="verdict"></div>
       <div class="cmp" id="cmp"></div>
       <div class="report"><h4>🔎 Scouting Report</h4><ul id="reportList"></ul></div>
+
+      <div class="btnrow" style="margin-top:16px">
+        <button class="primary" id="simBtn">▶️ Simulate the fight</button>
+        <button class="ghost" id="voiceBtn" title="Live commentary using your browser's speech engine">🔊 Commentary: off</button>
+      </div>
+      <div class="arena hidden" id="arena">
+        <div class="hprow"><span class="hpname" id="hpAName"></span>
+          <div class="hpbar"><div id="hpA"></div></div><span class="hpnum" id="hpANum">100</span></div>
+        <div class="hprow"><span class="hpname" id="hpBName"></span>
+          <div class="hpbar"><div id="hpB" class="b"></div></div><span class="hpnum" id="hpBNum">100</span></div>
+        <ul class="pbp" id="pbp"></ul>
+        <div class="simresult" id="simResult"></div>
+      </div>
+
       <div class="note" id="liveNote"></div>
     </div>
   </section>
@@ -189,6 +230,19 @@
     <p class="sub" style="margin:0">Average predicted win rate of each weapon archetype across every heavyweight matchup. Headline insight — confirmed by real championship history: <b>vertical spinners rule the box.</b></p>
     <div class="meta-grid" id="metaGrid"></div>
     <div class="note" style="margin-top:16px">💡 <b>Grounded in reality:</b> 6 of the last 7 Giant Nut champions were spinners (Bite Force ×3, End Game, Tantrum — all verticals; Tombstone — horizontal; SawBlaze — saw). The model's meta ranking matches the sport's actual results.</div>
+  </section>
+
+  <!-- ASK -->
+  <section class="card hidden" id="tab-ask">
+    <h2 style="margin:0 0 4px">🤖 Ask BattleScout</h2>
+    <p class="sub" style="margin:0">Ask in plain English. Answers are computed live from the dataset and the matchup model — every number is traceable, nothing is invented.</p>
+    <input id="askInput" placeholder="e.g. Who wins, End Game or Tombstone?" autocomplete="off" />
+    <div class="btnrow" style="justify-content:flex-start;margin-top:10px">
+      <button class="primary" id="askBtn">Ask</button>
+      <button class="ghost" id="askVoice">🔊 Read answer</button>
+    </div>
+    <div class="chips" id="askChips"></div>
+    <div class="answer" id="askAnswer"></div>
   </section>
 
   <footer>
@@ -362,9 +416,135 @@ function renderMeta(){
     return `<div class="mrow"><div>${LABEL[m.a]}</div><div class="mbar"><div style="width:${pct*1.6}%"></div></div><div>${pct}%</div></div>`;
   }).join("");
 }
+/* ---------------- Fight simulation + spoken commentary ---------------- */
+let VOICE_ON=false, simRunning=false;
+const canSpeak=()=>typeof window!=="undefined"&&"speechSynthesis"in window;
+function speak(text){ if(!VOICE_ON||!canSpeak())return; const u=new SpeechSynthesisUtterance(text); u.rate=1.06; window.speechSynthesis.speak(u); }
+function stopSpeak(){ if(canSpeak()) window.speechSynthesis.cancel(); }
+
+// Exchange-by-exchange simulation. The chance of landing the better hit comes from the
+// same model as the prediction; damage scales with each bot's KO tendency.
+function simulate(A,B){
+  const edgeA=predict(A,B), powA=0.55+A.koRate, powB=0.55+B.koRate;
+  const ev=[]; let hpA=100,hpB=100;
+  for(let r=1;r<=3&&hpA>0&&hpB>0;r++){
+    ev.push({t:"round",txt:`<b>Round ${r}</b> — they meet in the middle.`,say:`Round ${r}.`});
+    for(let x=0;x<3&&hpA>0&&hpB>0;x++){
+      const aLands=Math.random()<edgeA;
+      const att=aLands?A:B, def=aLands?B:A;
+      const dmg=Math.round((7+Math.random()*15)*(aLands?powA:powB));
+      if(aLands) hpB=Math.max(0,hpB-dmg); else hpA=Math.max(0,hpA-dmg);
+      ev.push({t:"hit",hpA,hpB,
+        txt:`<b>${att.name}</b> connects with the ${att.weapon.toLowerCase()} — <b>${dmg}</b> damage to ${def.name}.`,
+        say:`${att.name} connects. ${dmg} damage to ${def.name}.`});
+    }
+  }
+  const koed=hpA<=0||hpB<=0;
+  const winner=koed?(hpA<=0?B:A):(hpA>=hpB?A:B);
+  const how=koed?"KNOCKOUT":"JUDGES' DECISION";
+  ev.push({t:"ko",hpA,hpB,txt:`${koed?"💥":"🧮"} <b>${winner.name}</b> takes it by <b>${how}</b>.`,
+    say:`${winner.name} wins by ${koed?"knockout":"judges decision"}.`});
+  return {ev,winner,how};
+}
+async function runSim(){
+  if(simRunning)return;
+  const A=byId($("a").value),B=byId($("b").value);
+  if(A.id===B.id)return;
+  simRunning=true; $("simBtn").disabled=true; $("simBtn").textContent="⏳ Fighting…";
+  const {ev,winner,how}=simulate(A,B);
+  $("arena").classList.remove("hidden");
+  $("hpAName").textContent=A.name; $("hpBName").textContent=B.name;
+  $("hpA").style.width="100%"; $("hpB").style.width="100%";
+  $("hpANum").textContent="100"; $("hpBNum").textContent="100";
+  $("pbp").innerHTML=""; $("simResult").innerHTML="";
+  speak(`${A.name} versus ${B.name}. Let's get it on!`);
+  for(const e of ev){
+    await new Promise(r=>setTimeout(r,e.t==="round"?750:1050));
+    const li=document.createElement("li"); li.className=e.t==="hit"?"hit":(e.t==="ko"?"ko":"");
+    li.innerHTML=e.txt; $("pbp").appendChild(li);
+    if(e.hpA!==undefined){ $("hpA").style.width=e.hpA+"%"; $("hpB").style.width=e.hpB+"%";
+      $("hpANum").textContent=e.hpA; $("hpBNum").textContent=e.hpB; }
+    if(e.say) speak(e.say);
+  }
+  const fav=predict(A,B)>=0.5?A:B;
+  $("simResult").innerHTML=`Result: <span style="color:var(--good)">${winner.name}</span> by ${how}. `+
+    `<span style="color:var(--muted);font-weight:400">Pre-fight the model favoured ${fav.name} — simulations vary, exactly like real fights.</span>`;
+  simRunning=false; $("simBtn").disabled=false; $("simBtn").textContent="▶️ Simulate the fight";
+}
+
+/* ---------------- Ask BattleScout — deterministic NL query over the dataset ---------------- */
+const SAMPLES=["Who wins, End Game or Tombstone?","Top 5 by Meta Score","Who has the highest KO rate?",
+  "Which weapon type dominates?","Tell me about Orbitron","Who are the champions?","Robots from Brazil","Best vertical spinner"];
+function findBots(s){ return BOTS.filter(b=>s.includes(b.name.toLowerCase())); }
+function ans(title,html,src){
+  $("askAnswer").innerHTML=`<h4>${title}</h4>${html}${src?`<div class="src">${src}</div>`:""}`;
+  $("askAnswer").classList.add("show");
+}
+function ranked(keyFn,label,fmt){
+  const list=[...BOTS].filter(b=>b.wins+b.losses>0).sort((x,y)=>keyFn(y)-keyFn(x)).slice(0,5);
+  ans(label,`<ol>${list.map(b=>`<li><b>${b.name}</b> — ${fmt(b)}</li>`).join("")}</ol>`,"Computed live from the dataset.");
+}
+function askEngine(q){
+  const s=(q||"").toLowerCase().trim();
+  if(!s) return ans("Ask me something","<p>Pick one of the suggestions below.</p>");
+  const found=findBots(s);
+  if(found.length>=2){
+    const [A,B]=found, p=predict(A,B), w=p>=0.5?A:B, wp=Math.round((p>=0.5?p:1-p)*100);
+    const {lines}=report(A,B,p);
+    return ans(`${A.name} vs ${B.name}`,
+      `<p><b>${w.name}</b> is favoured — <b>${wp}%</b> confidence.</p><ul>${lines.slice(0,4).map(l=>`<li>${l}</li>`).join("")}</ul>`,
+      "From the matchup model: weapon archetype + career win rate + KO tendency.");
+  }
+  if(found.length===1){
+    const b=found[0];
+    return ans(b.name,`<p>${b.note}</p><ul>
+      <li><b>Team:</b> ${b.builder} · ${b.country}</li>
+      <li><b>Weapon:</b> ${b.weapon} — ${LABEL[b.archetype]}</li>
+      <li><b>Record:</b> ${b.wins}-${b.losses} (${Math.round(winRate(b)*100)}% win rate, <i>${b.conf}</i>)</li>
+      <li><b>KO tendency:</b> ${Math.round(b.koRate*100)}%</li>
+      <li><b>Meta Score:</b> ${Math.round(metaScore(b)*100)}% against the whole field</li>
+      ${b.titles.length?`<li><b>Honours:</b> ${b.titles.join(", ")}</li>`:""}</ul>`,
+      "Confidence: official = battlebots.com profile · est = estimate · cited = widely reported · rookie = no televised record.");
+  }
+  if(/\bko\b|knock/.test(s)) return ranked(b=>b.koRate,"Highest KO tendency",b=>`${Math.round(b.koRate*100)}% of wins by knockout`);
+  if(/meta score|top|rank|strongest|best overall/.test(s)) return ranked(b=>metaScore(b),"Top 5 by Meta Score",b=>`${Math.round(metaScore(b)*100)}% vs the field`);
+  if(/win rate|most wins|best record/.test(s)) return ranked(b=>winRate(b),"Best career win rate",b=>`${b.wins}-${b.losses} (${Math.round(winRate(b)*100)}%)`);
+  if(/champion|giant nut|title/.test(s)){
+    const c=BOTS.filter(b=>b.titles.some(t=>/Champion/.test(t)));
+    return ans("Giant Nut champions",`<ul>${c.map(b=>`<li><b>${b.name}</b> — ${b.titles.filter(t=>/Champion/.test(t)).join(", ")}</li>`).join("")}</ul>`,
+      "Cross-checked against Wikipedia championship history (docs/DATA_SOURCES.md).");
+  }
+  for(const a of ARCH){
+    const word=LABEL[a].toLowerCase().split(" ")[0];
+    if(s.includes(word)&&/best|top|good|strongest|which/.test(s)){
+      const list=BOTS.filter(b=>b.archetype===a&&b.wins+b.losses>0).sort((x,y)=>metaScore(y)-metaScore(x)).slice(0,5);
+      if(list.length) return ans(`Best ${LABEL[a].toLowerCase()}s`,
+        `<ol>${list.map(b=>`<li><b>${b.name}</b> — Meta Score ${Math.round(metaScore(b)*100)}%</li>`).join("")}</ol>`,"Ranked by Meta Score.");
+    }
+  }
+  if(/weapon type|archetype|meta|dominat/.test(s)){
+    const sums={},counts={};ARCH.forEach(a=>{sums[a]=0;counts[a]=0;});
+    for(const A of BOTS)for(const B of BOTS){if(A.id!==B.id){sums[A.archetype]+=predict(A,B);counts[A.archetype]++;}}
+    const m=ARCH.map(a=>({a,r:sums[a]/counts[a]})).sort((x,y)=>y.r-x.r);
+    return ans("Which weapon type dominates",
+      `<ol>${m.map(x=>`<li>${LABEL[x.a]} — <b>${Math.round(x.r*100)}%</b></li>`).join("")}</ol>
+       <p style="margin-top:8px">Confirmed by history: 6 of the last 7 Giant Nut champions were spinners.</p>`,
+      "Averaged over every heavyweight matchup in the dataset.");
+  }
+  for(const c of [...new Set(BOTS.map(b=>b.country))]){
+    if(s.includes(c.toLowerCase().split(" ")[0])&&c.length>3){
+      const list=BOTS.filter(b=>b.country===c);
+      return ans(`Robots from ${c}`,`<ul>${list.map(b=>`<li><b>${b.name}</b> — ${b.builder}</li>`).join("")}</ul>`,"From the dataset.");
+    }
+  }
+  return ans("Here's what I can answer",`<ul>${SAMPLES.map(x=>`<li>${x}</li>`).join("")}</ul>`,
+    "This is a deterministic query engine over the dataset — not an LLM, so it can't invent facts.");
+}
+
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");
-  for(const id of ["scout","board","meta"]) $("tab-"+id).classList.toggle("hidden",id!==t.dataset.tab);
+  for(const id of ["scout","board","meta","ask"]) $("tab-"+id).classList.toggle("hidden",id!==t.dataset.tab);
+  stopSpeak();
 });
 document.querySelectorAll("#board th").forEach(th=>th.onclick=()=>{
   const k=th.dataset.sort;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=-1;}renderBoard();
@@ -373,6 +553,28 @@ $("boardSearch").addEventListener("input",renderBoard);
 fillSelects();renderBoard();renderMeta();
 $("scout").onclick=run;
 $("featured").onclick=()=>{$("a").value="orbitron";$("b").value="tombstone";run();};
+
+// fight sim + commentary
+$("simBtn").onclick=runSim;
+$("voiceBtn").onclick=()=>{
+  VOICE_ON=!VOICE_ON;
+  $("voiceBtn").textContent=`🔊 Commentary: ${VOICE_ON?"on":"off"}`;
+  if(!VOICE_ON) stopSpeak(); else speak("Commentary on.");
+};
+if(!canSpeak()){ $("voiceBtn").disabled=true; $("voiceBtn").textContent="🔊 Commentary unavailable"; }
+
+// ask
+$("askChips").innerHTML=SAMPLES.map(s=>`<span class="chip">${s}</span>`).join("");
+$("askChips").querySelectorAll(".chip").forEach(c=>c.onclick=()=>{$("askInput").value=c.textContent;askEngine(c.textContent);});
+$("askBtn").onclick=()=>askEngine($("askInput").value);
+$("askInput").addEventListener("keydown",e=>{if(e.key==="Enter")askEngine($("askInput").value);});
+$("askVoice").onclick=()=>{
+  if(!$("askAnswer").classList.contains("show")) askEngine($("askInput").value);
+  if(!canSpeak())return;
+  stopSpeak();
+  const u=new SpeechSynthesisUtterance($("askAnswer").innerText); u.rate=1.06;
+  window.speechSynthesis.speak(u);
+};
 run();
 
 // Direct-state view for clean captures: ?view=scout|board|meta  &pair=id1-id2
@@ -383,7 +585,7 @@ if(_q.has("view")){
   if(p.length===2&&byId(p[0])&&byId(p[1])){$("a").value=p[0];$("b").value=p[1];run();}
   if(_q.get("q")){$("boardSearch").value=_q.get("q");renderBoard();}
   const v=_q.get("view");
-  tab(v==="board"||v==="meta"?v:"scout");
+  tab(["board","meta","ask"].includes(v)?v:"scout");
 }
 
 // Auto-demo mode for screen recording / hands-off tour: add ?demo=1 to the URL.
