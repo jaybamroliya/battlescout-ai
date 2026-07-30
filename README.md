@@ -51,6 +51,15 @@ Bright Data is not decoration here — it is the only reason the live records an
 
 **Proof:** running the pipeline against the BattleBots fan wiki, a plain fetch is **blocked (HTTP 403)** for every robot, while the **Bright Data Web Unlocker returns the full page (HTTP 200, 0.5–1 MB each)**. The full before/after table for all 37 robots is in [docs/bright-data-proof.md](docs/bright-data-proof.md), with raw HTML saved under `scraper/evidence/`.
 
+**Account usage for this project** (from the Bright Data dashboard, Web Unlocker zone `web_unlocker1`):
+
+| Metric | Value |
+|---|---|
+| Web Unlocker API requests | **76** |
+| Bandwidth pulled | **10.7 MB** |
+| Pages unlocked | **36 / 37** |
+| Cost | a few cents of the free competition credits (4,927 / 5,000 remaining) |
+
 ### Structured extraction, not just fetching
 
 Unlocking the page is only half of it — [`scraper/parse-specs.mjs`](scraper/parse-specs.mjs) then parses each robot's **portable-infobox fields (team, weapon, weight, power, drive)** out of that HTML and maps the weapon text onto the model's archetype. It cross-checks that against `data/bots.json` and **flags disagreements instead of hiding them**:
