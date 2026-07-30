@@ -9,6 +9,15 @@
 
 ---
 
+## Try it in 10 seconds (deep links)
+
+| Link | What you'll see |
+|---|---|
+| [Orbitron vs Tombstone](https://jaybamroliya.github.io/battlescout-ai/web/index.html?view=scout&pair=orbitron-tombstone) | Prediction + full scouting report |
+| [A finished simulated fight](https://jaybamroliya.github.io/battlescout-ai/web/index.html?view=scout&pair=orbitron-tombstone&sim=instant) | Round-by-round play-by-play with HP bars |
+| [Ask: "Which weapon type dominates?"](https://jaybamroliya.github.io/battlescout-ai/web/index.html?ask=Which%20weapon%20type%20dominates%3F) | Plain-English query answered from the data |
+| [Leaderboard, filtered to vertical spinners](https://jaybamroliya.github.io/battlescout-ai/web/index.html?view=board&q=vertical) | Meta Score ranking + search |
+
 ## Why this project
 
 Every BattleBots stats project shows the same thing: a bar chart of past wins. BattleScout AI does something different — it answers the question fans actually argue about: **"who would win?"** — and it backs the answer with a transparent model *and* live web data.
