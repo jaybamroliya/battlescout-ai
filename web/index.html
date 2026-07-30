@@ -26,7 +26,11 @@
   .pickers{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:end}
   @media(max-width:640px){.pickers{grid-template-columns:1fr;}.vs{transform:rotate(90deg)}}
   label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
-  select{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:16px;appearance:none}
+  select{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:16px;appearance:none;
+    min-width:0;max-width:100%;text-overflow:ellipsis}
+  /* long <option> text must never widen the layout past the screen */
+  .pickers>div,.cmprow>*,.mrow>*,.fighter,.fighters>*{min-width:0}
+  .fighter{overflow-wrap:anywhere}
   .vs{font-weight:800;color:var(--accent);font-size:22px;text-align:center;padding-bottom:10px}
   .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;justify-content:center}
   button{cursor:pointer;border:none;border-radius:10px;padding:12px 20px;font-size:15px;font-weight:600;font-family:var(--font)}
