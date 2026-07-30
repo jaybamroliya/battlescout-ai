@@ -68,6 +68,11 @@
   td.n,th.n{text-align:right}
   tr:hover td{background:#0e1626}
   .rankwrap{overflow-x:auto}
+  #boardSearch{width:100%;margin:12px 0 4px;background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;font-size:15px;font-family:var(--font)}
+  #boardSearch:focus{outline:none;border-color:var(--accent2)}
+  #boardSearch::placeholder{color:var(--muted)}
+  .nores{color:var(--muted);padding:16px 8px;font-size:14px}
   .meta-grid{display:flex;flex-direction:column;gap:8px;margin-top:12px}
   .mrow{display:grid;grid-template-columns:150px 1fr 46px;gap:10px;align-items:center;font-size:14px}
   .mbar{height:16px;background:#0e1626;border-radius:6px;border:1px solid var(--line);overflow:hidden}
@@ -79,6 +84,45 @@
   .hidden{display:none}
   .legend{font-size:12px;color:var(--muted);margin-top:10px}
   .legend b{color:var(--text)}
+
+  /* ---------- Mobile ---------- */
+  html{-webkit-text-size-adjust:100%}
+  body{overflow-x:hidden}
+  @media(max-width:700px){
+    .wrap{padding:14px 12px 44px}
+    header{padding:10px 0 2px}
+    .sub{font-size:14.5px}
+    .card{padding:14px;border-radius:12px;margin-top:14px}
+    .tabs{gap:6px;margin-top:16px}
+    .tab{padding:9px 13px;font-size:13px}
+    /* fighter cards stack instead of squeezing side-by-side */
+    .fighters{grid-template-columns:1fr;gap:10px}
+    .fighter{padding:13px}
+    .fighter h3{font-size:18px}
+    /* comparison rows: tighter columns so bars stay readable */
+    .cmprow{grid-template-columns:40px 1fr 22px 1fr 40px;gap:6px;font-size:11px}
+    .cmprow .lbl{font-size:10px}
+    .bar{height:30px}
+    .bar .a,.bar .b{padding:0 9px;font-size:13px}
+    .report{padding:13px}
+    .report ul{padding-left:16px}
+    .report li{font-size:14px}
+    /* meta rows: shorter label column */
+    .mrow{grid-template-columns:96px 1fr 38px;gap:8px;font-size:13px}
+    /* leaderboard: compact, scrolls horizontally inside its own box */
+    .rankwrap{-webkit-overflow-scrolling:touch}
+    #board{font-size:12.5px;min-width:560px}
+    #board th,#board td{padding:7px 6px}
+    #boardSearch{font-size:14px;padding:11px 12px}
+    select{font-size:15px;padding:11px}
+    button{padding:11px 16px;font-size:14px}
+    footer{font-size:12px}
+  }
+  @media(max-width:400px){
+    h1{font-size:32px}
+    .cmprow{grid-template-columns:36px 1fr 16px 1fr 36px;gap:5px}
+    #board{min-width:520px}
+  }
 </style>
 </head>
 <body>
@@ -119,6 +163,7 @@
   <section class="card hidden" id="tab-board">
     <h2 style="margin:0 0 4px">🏆 Heavyweight Leaderboard</h2>
     <p class="sub" style="margin:0 0 6px">Ranked by <b>Meta Score</b> — each bot's average predicted win probability against the entire field. It rewards a strong weapon archetype, not just a padded record. 🏆 marks Giant Nut champions. Click any header to re-sort.</p>
+    <input id="boardSearch" placeholder="🔎 Search any robot, weapon, builder or country…" autocomplete="off" />
     <div class="rankwrap"><table id="board">
       <thead><tr>
         <th class="n" data-sort="rank">#</th>
@@ -283,7 +328,10 @@ function run(){
 }
 let sortKey="meta",sortDir=-1;
 function renderBoard(){
-  const rows=BOTS.filter(b=>b.wins+b.losses>0).map(b=>({b,win:winRate(b),meta:metaScore(b)}));
+  const q=($("boardSearch").value||"").trim().toLowerCase();
+  const hit=b=>!q||[b.name,b.weapon,LABEL[b.archetype],b.builder,b.country,b.tier,...(b.titles||[])]
+    .join(" ").toLowerCase().includes(q);
+  const rows=BOTS.filter(b=>b.wins+b.losses>0&&hit(b)).map(b=>({b,win:winRate(b),meta:metaScore(b)}));
   const key=sortKey;
   rows.sort((x,y)=>{
     let vx,vy;
@@ -294,6 +342,7 @@ function renderBoard(){
     else {vx=x.win;vy=y.win;}
     return sortDir*(vx-vy);
   });
+  if(!rows.length){$("boardBody").innerHTML=`<tr><td colspan="7" class="nores">No robot matches “${q}”. Try “vertical”, “Brazil”, or “champion”.</td></tr>`;return;}
   $("boardBody").innerHTML=rows.map((r,i)=>`<tr>
     <td class="n">${i+1}</td><td><b>${r.b.name}</b>${crown(r.b)?" 🏆":""}</td><td>${LABEL[r.b.archetype]}</td>
     <td class="n">${r.b.wins}-${r.b.losses}</td><td class="n">${Math.round(r.win*100)}%</td>
@@ -316,6 +365,7 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
 document.querySelectorAll("#board th").forEach(th=>th.onclick=()=>{
   const k=th.dataset.sort;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=-1;}renderBoard();
 });
+$("boardSearch").addEventListener("input",renderBoard);
 fillSelects();renderBoard();renderMeta();
 $("scout").onclick=run;
 $("featured").onclick=()=>{$("a").value="orbitron";$("b").value="tombstone";run();};
@@ -327,6 +377,7 @@ if(_q.has("view")){
   const tab=n=>document.querySelector('.tab[data-tab="'+n+'"]').click();
   const p=(_q.get("pair")||"").split("-");
   if(p.length===2&&byId(p[0])&&byId(p[1])){$("a").value=p[0];$("b").value=p[1];run();}
+  if(_q.get("q")){$("boardSearch").value=_q.get("q");renderBoard();}
   const v=_q.get("view");
   tab(v==="board"||v==="meta"?v:"scout");
 }
