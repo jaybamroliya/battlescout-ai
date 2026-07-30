@@ -15,10 +15,14 @@ Every BattleBots stats project shows the same thing: a bar chart of past wins. B
 
 The 2026 Pro League introduces **Orbitron, billed as the first fully AI-controlled combat robot**. So the signature demo is fitting: point an *AI scout* at the *AI robot* — `Orbitron vs Tombstone` — and see how autonomy stacks up against a former World Champion.
 
-## What it does (3 tabs)
+## What it does
 
-1. **⚔️ Scout a Matchup** — pick any two of 38 heavyweights and get a win probability, a stat comparison (career win rate / KO rate / experience), and a written **scouting report** (weapon matchup, track record, finishing power, path to victory).
+1. **⚔️ Scout a Matchup** — pick any two of 37 heavyweights and get a win probability, a stat comparison (career win rate / KO rate / experience), and a written **scouting report** (weapon matchup, track record, finishing power, path to victory).
    Model = weapon-archetype matchup matrix + career win rate + KO rate.
+   - **▶️ Simulate the fight** — a round-by-round exchange simulation driven by the *same* model: HP bars drain and a play-by-play prints ("Tombstone connects with the horizontal spinning bar — 19 damage"), ending in a KO or a judges' decision.
+   - **🔊 Commentary** — optional spoken play-by-play using the browser's speech engine (no API key, no cost, works offline).
+1. **🤖 Ask BattleScout** — ask in plain English: *"Who wins, End Game or Tombstone?"*, *"Who has the highest KO rate?"*, *"Which weapon type dominates?"*, *"Robots from Brazil"*, *"Tell me about Orbitron"*.
+   Deliberately a **deterministic query engine over the dataset, not an LLM** — so it is fast, free, offline, and **cannot hallucinate**. Every answer cites where the number came from.
 2. **🏆 Leaderboard** — all bots ranked, with a **Meta Score** column unique to BattleScout AI: each bot's average predicted win probability against the *entire field*. It rewards a strong weapon archetype, not just a padded record — e.g. **End Game ranks #1 by Meta Score even though Bite Force has a higher raw win rate.**
 3. **📊 The Meta** — average win rate of each weapon archetype across all matchups. Headline finding: **vertical spinners rule the box (62.4%)**; control bots sit at the bottom — and this isn't a guess: **6 of the last 7 Giant Nut champions were spinners** (see [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)).
 
