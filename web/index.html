@@ -446,7 +446,7 @@ function simulate(A,B){
     say:`${winner.name} wins by ${koed?"knockout":"judges decision"}.`});
   return {ev,winner,how};
 }
-async function runSim(){
+async function runSim(fast){
   if(simRunning)return;
   const A=byId($("a").value),B=byId($("b").value);
   if(A.id===B.id)return;
@@ -457,14 +457,14 @@ async function runSim(){
   $("hpA").style.width="100%"; $("hpB").style.width="100%";
   $("hpANum").textContent="100"; $("hpBNum").textContent="100";
   $("pbp").innerHTML=""; $("simResult").innerHTML="";
-  speak(`${A.name} versus ${B.name}. Let's get it on!`);
+  if(!fast) speak(`${A.name} versus ${B.name}. Let's get it on!`);
   for(const e of ev){
-    await new Promise(r=>setTimeout(r,e.t==="round"?750:1050));
+    await new Promise(r=>setTimeout(r,fast?0:(e.t==="round"?750:1050)));
     const li=document.createElement("li"); li.className=e.t==="hit"?"hit":(e.t==="ko"?"ko":"");
     li.innerHTML=e.txt; $("pbp").appendChild(li);
     if(e.hpA!==undefined){ $("hpA").style.width=e.hpA+"%"; $("hpB").style.width=e.hpB+"%";
       $("hpANum").textContent=e.hpA; $("hpBNum").textContent=e.hpB; }
-    if(e.say) speak(e.say);
+    if(e.say&&!fast) speak(e.say);
   }
   const fav=predict(A,B)>=0.5?A:B;
   $("simResult").innerHTML=`Result: <span style="color:var(--good)">${winner.name}</span> by ${how}. `+
@@ -555,7 +555,7 @@ $("scout").onclick=run;
 $("featured").onclick=()=>{$("a").value="orbitron";$("b").value="tombstone";run();};
 
 // fight sim + commentary
-$("simBtn").onclick=runSim;
+$("simBtn").onclick=()=>runSim(false);
 $("voiceBtn").onclick=()=>{
   VOICE_ON=!VOICE_ON;
   $("voiceBtn").textContent=`🔊 Commentary: ${VOICE_ON?"on":"off"}`;
@@ -579,13 +579,15 @@ run();
 
 // Direct-state view for clean captures: ?view=scout|board|meta  &pair=id1-id2
 const _q=new URLSearchParams(location.search);
-if(_q.has("view")){
+if(_q.has("view")||_q.has("ask")||_q.has("sim")){
   const tab=n=>document.querySelector('.tab[data-tab="'+n+'"]').click();
   const p=(_q.get("pair")||"").split("-");
   if(p.length===2&&byId(p[0])&&byId(p[1])){$("a").value=p[0];$("b").value=p[1];run();}
   if(_q.get("q")){$("boardSearch").value=_q.get("q");renderBoard();}
-  const v=_q.get("view");
+  const v=_q.get("view")||(_q.has("ask")?"ask":"scout");
   tab(["board","meta","ask"].includes(v)?v:"scout");
+  if(_q.get("ask")){$("askInput").value=_q.get("ask");askEngine(_q.get("ask"));}
+  if(_q.get("sim")==="instant") runSim(true);   // renders a finished fight (for demos/captures)
 }
 
 // Auto-demo mode for screen recording / hands-off tour: add ?demo=1 to the URL.
