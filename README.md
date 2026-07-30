@@ -1,5 +1,7 @@
 # 🤖 BattleScout AI
 
+[![tests](https://github.com/jaybamroliya/battlescout-ai/actions/workflows/test.yml/badge.svg)](https://github.com/jaybamroliya/battlescout-ai/actions/workflows/test.yml)
+
 **An AI scouting agent for robot combat.** Pick any two BattleBots heavyweights and BattleScout AI returns a data-driven matchup prediction, a scouting report, and the weapon-archetype "meta" behind it — enriched with **live public web data via [Bright Data](https://brightdata.com)**.
 
 > Entry for the **#BattleBotsDev** Competition · *BattleBots Pro League Powered by Bright Data*
