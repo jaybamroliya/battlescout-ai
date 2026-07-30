@@ -38,6 +38,18 @@ Bright Data is not decoration here — it is the only reason the live records an
 
 **Proof:** running the pipeline against the BattleBots fan wiki, a plain fetch is **blocked (HTTP 403)** for every robot, while the **Bright Data Web Unlocker returns the full page (HTTP 200, 0.5–1 MB each)**. The full before/after table for all 37 robots is in [docs/bright-data-proof.md](docs/bright-data-proof.md), with raw HTML saved under `scraper/evidence/`.
 
+### Structured extraction, not just fetching
+
+Unlocking the page is only half of it — [`scraper/parse-specs.mjs`](scraper/parse-specs.mjs) then parses each robot's **portable-infobox fields (team, weapon, weight, power, drive)** out of that HTML and maps the weapon text onto the model's archetype. It cross-checks that against `data/bots.json` and **flags disagreements instead of hiding them**:
+
+```bash
+npm run specs     # 36/36 pages parsed -> docs/scraped-specs.md
+```
+
+Result: **27 archetypes confirmed** by the scraped weapon text, **8 flagged** — and the flagged ones are real ambiguities (Bombshell's interchangeable weapons, HyperShock's season-to-season changes, Whiplash's lifter+spinner hybrid), documented in [docs/scraped-specs.md](docs/scraped-specs.md).
+
+Honest boundary: the wiki infobox has **no career win-loss field**, so records are *not* auto-scraped — they stay researched and source-cited ([docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)). What the pipeline refreshes is the structured specs that drive the archetypes.
+
 ### Architecture: no backend, by design
 
 | Layer | Where it runs | Network calls |

@@ -15,6 +15,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { parseSpecs, archetypeFromWeapon } from "./parse-specs.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -84,10 +85,15 @@ async function main() {
     try {
       const html = await brightDataFetch(url);
       writeFileSync(join(EVID, `${b.id}.html`), html);
+      // structured extraction — only possible because Bright Data unlocked the page
+      const specs = parseSpecs(html);
+      b.specs = specs;
+      b.scrapedArchetype = archetypeFromWeapon(specs.weapons);
       b.scrape = { url, ok: true, chars: html.length, plainStatus: plain.status };
       proof.push({ name: b.name, url, plain: plain.status, bd: `200 (${html.length.toLocaleString()} chars)` });
       ok++;
-      console.log(`   ✅ ${b.name}: plain=${plain.status} → BrightData=200 [${html.length.toLocaleString()} chars]`);
+      console.log(`   ✅ ${b.name}: plain=${plain.status} → BrightData=200 [${html.length.toLocaleString()} chars]`
+        + (specs.weapons ? ` · weapon: ${specs.weapons.slice(0, 40)}` : ""));
     } catch (e) {
       b.scrape = { url, ok: false, error: String(e.message || e), plainStatus: plain.status };
       proof.push({ name: b.name, url, plain: plain.status, bd: `FAIL: ${e.message}` });
