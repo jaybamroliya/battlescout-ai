@@ -77,6 +77,9 @@
   #boardSearch:focus{outline:none;border-color:var(--accent2)}
   #boardSearch::placeholder{color:var(--muted)}
   .nores{color:var(--muted);padding:16px 8px;font-size:14px}
+  .cf{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;padding:2px 5px;border-radius:5px;
+    border:1px solid var(--line);color:var(--muted);vertical-align:middle}
+  .cf.official{color:var(--good)} .cf.est{color:var(--warn)} .cf.new{color:var(--accent)}
   /* fight simulation */
   .arena{margin-top:14px;background:#0e1626;border:1px solid var(--line);border-radius:12px;padding:16px}
   .hprow{display:grid;grid-template-columns:150px 1fr 48px;gap:10px;align-items:center;margin:8px 0;font-size:14px}
@@ -221,7 +224,10 @@
       </tr></thead>
       <tbody id="boardBody"></tbody>
     </table></div>
-    <p class="legend">Data confidence: <b style="color:var(--good)">official</b> = from battlebots.com profile · <b style="color:var(--warn)">est</b> = estimate (refresh via Bright Data) · <b>cited</b> = widely reported.</p>
+    <p class="legend"><b>Record confidence</b> (shown on each row): <b style="color:var(--good)">official</b> = from that robot's battlebots.com profile ·
+    <b style="color:var(--warn)">est</b> = estimate consistent with known standing · <b>cited</b> = widely reported, not primary-verified · <b style="color:var(--accent)">new</b> = no televised record yet.<br/>
+    <b>KO %</b> is an estimated <i>finishing tendency</i>, not an officially published statistic.
+    <b>Meta Score</b> and all win probabilities are <b>model outputs</b> — predictions, not historical results.</p>
   </section>
 
   <!-- META -->
@@ -403,7 +409,7 @@ function renderBoard(){
   if(!rows.length){$("boardBody").innerHTML=`<tr><td colspan="7" class="nores">No robot matches “${q}”. Try “vertical”, “Brazil”, or “champion”.</td></tr>`;return;}
   $("boardBody").innerHTML=rows.map((r,i)=>`<tr>
     <td class="n">${i+1}</td><td><b>${r.b.name}</b>${crown(r.b)?" 🏆":""}</td><td>${LABEL[r.b.archetype]}</td>
-    <td class="n">${r.b.wins}-${r.b.losses}</td><td class="n">${Math.round(r.win*100)}%</td>
+    <td class="n">${r.b.wins}-${r.b.losses} <span class="cf ${r.b.conf}" title="record confidence">${r.b.conf}</span></td><td class="n">${Math.round(r.win*100)}%</td>
     <td class="n">${Math.round(r.b.koRate*100)}%</td>
     <td class="n" style="color:var(--accent);font-weight:700">${Math.round(r.meta*100)}%</td></tr>`).join("");
   document.querySelectorAll("#board th").forEach(th=>th.classList.toggle("active",th.dataset.sort===key));

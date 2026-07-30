@@ -63,6 +63,22 @@ Result: **27 archetypes confirmed** by the scraped weapon text, **8 flagged** �
 
 Honest boundary: the wiki infobox has **no career win-loss field**, so records are *not* auto-scraped — they stay researched and source-cited ([docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)). What the pipeline refreshes is the structured specs that drive the archetypes.
 
+### What's measured vs. what's modelled
+
+Stated plainly, because the difference matters:
+
+| Value | Nature | Source |
+|---|---|---|
+| Robot name, builder, country, weapon, weight | **Measured** | Public pages; weapon/team/weight re-scraped via Bright Data ([docs/scraped-specs.md](docs/scraped-specs.md)) |
+| `403` vs `200` fetch results, request count, bytes | **Measured** | The pipeline's own run + the Bright Data dashboard ([docs/bright-data-proof.md](docs/bright-data-proof.md)) |
+| Championship / finalist history | **Measured** | Wikipedia + official site ([docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)) |
+| Career win-loss | **Mixed, labelled per row** | `official` (battlebots.com profile) · `cited` (widely reported) · `est` (estimate) · `new` (no record yet) |
+| KO % | **Estimated tendency** | Not an officially published stat — an indicative finishing tendency |
+| Win probability, Meta Score, archetype meta % | **Model output** | Computed by the model in this repo — predictions, not historical fact |
+| Fight simulation | **Stochastic simulation** | Same model + randomised exchanges; re-running gives different fights, like real ones |
+
+Nothing in the UI presents a model output as a historical result, and every record carries its confidence label on the row itself.
+
 ### Architecture: no backend, by design
 
 | Layer | Where it runs | Network calls |
