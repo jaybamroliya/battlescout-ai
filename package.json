@@ -7,6 +7,7 @@
     "scrape": "node scraper/scrape.mjs",
     "scrape:dry": "node scraper/scrape.mjs --dry-run",
     "specs": "node scraper/parse-specs.mjs",
+    "test": "node test/verify.mjs",
     "analyze": "node analysis/analyze.mjs",
     "demo": "node -e \"const{createServer}=require('node:http'),{readFileSync}=require('node:fs');createServer((q,s)=>{try{s.setHeader('content-type','text/html');s.end(readFileSync('web/index.html'))}catch(e){s.statusCode=500;s.end(String(e))}}).listen(8080,()=>console.log('BattleScout AI live demo → http://localhost:8080'))\""
   },
