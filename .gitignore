@@ -9,3 +9,8 @@ scraper/evidence/
 docs/VIDEO_SCRIPT.md
 docs/SUBMISSION_CHECKLIST.md
 presentation.html
+
+# crash dumps / OS junk
+*.stackdump
+Thumbs.db
+desktop.ini
