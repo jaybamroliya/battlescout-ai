@@ -8,6 +8,8 @@
 
 **🔗 Live demo — no signup, runs entirely in your browser:** https://jaybamroliya.github.io/battlescout-ai/
 
+**🎥 Video walkthrough:** [YouTube](https://youtu.be/Y7Y33GRHjB4) · [LinkedIn](https://www.linkedin.com/posts/jay-bamroliya_battlebotsdev-battlebotsdev-battlebots-share-7488986929137491969-_C0O/) · [X](https://x.com/Jay__Bamroliya/status/2083222634771382678)
+
 ---
 
 ## Try it in 10 seconds (deep links)
