@@ -6,8 +6,7 @@
 
 > Entry for the **#BattleBotsDev** Competition · *BattleBots Pro League Powered by Bright Data*
 
-**🔗 Live demo:** https://jaybamroliya.github.io/battlescout-ai/
-**🎥 Video walkthrough:** _[add your YouTube/LinkedIn/X links here]_
+**🔗 Live demo:** https://jaybamroliya.github.io/battlescout-ai/ · **💻 Source:** you're looking at it · **✅ CI:** tests run on every push
 
 ---
 
@@ -155,31 +154,61 @@ The demo is a single self-contained file — `web/index.html`. To satisfy the co
 2. **Settings → Pages → Deploy from branch → `main` / root** (or point Pages at `/web`).
 3. Your live URL will be `https://<username>.github.io/<repo>/web/` — paste it at the top of this README and into the submission form.
 
-## 🗂 Project structure
+## 🗂 Repository map — every file and why it exists
 
-```
-battlescout-ai/
-├── web/index.html          # the live demo (self-contained, GitHub Pages ready)
-├── scraper/scrape.mjs      # Bright Data Web Unlocker enrichment pipeline
-├── analysis/analyze.mjs    # meta + matchup analysis engine
-├── data/bots.json          # seed dataset (20 heavyweights)
-├── docs/insights.md        # auto-generated insights
-└── README.md
+There is no dead weight here; each file below is either run by an npm script, served to the browser, or generated as evidence.
+
+| Path | What it is | Why it's here |
+|---|---|---|
+| `web/index.html` | **The application.** All four tabs, the model, the fight simulation, the Ask engine — one self-contained file. | This *is* the live demo. Static, so GitHub Pages can serve it and it can't break at judging time. |
+| `index.html` | 4-line redirect to `web/index.html`. | Lets the demo open at the clean URL `…github.io/battlescout-ai/`. |
+| `data/bots.json` | Dataset of **37 heavyweights** — builder, country, weapon, archetype, record, KO tendency, honours, confidence label. | Single source of truth. Validated by `npm test`. |
+| `scraper/scrape.mjs` | Bright Data **Web Unlocker** pipeline. Fetches each robot's page twice — plain vs. unlocked — and saves the raw HTML. | `npm run scrape`. Produces the 403→200 proof. |
+| `scraper/parse-specs.mjs` | Parses the portable-infobox fields (team / weapon / weight / power / drive) out of the unlocked HTML and cross-checks archetypes. | `npm run specs`. Runs offline against saved HTML, so it costs nothing to re-verify. |
+| `scraper/.env.example` | Template for `BRIGHTDATA_API_TOKEN` + zone. | Setup docs. The real `.env` is git-ignored — **no secret is ever committed**. |
+| `analysis/analyze.mjs` | Computes the archetype meta and the Meta-Score leaderboard, writes `docs/insights.md`. | `npm run analyze`. |
+| `test/verify.mjs` | 18 checks: dataset integrity, model invariants, simulation calibration. | `npm test`. This is what proves the claims in this README. |
+| `.github/workflows/test.yml` | CI: runs `npm test`, `npm run analyze` and the Bright Data dry-run on every push. | The green **tests passing** badge at the top comes from here. |
+| `docs/bright-data-proof.md` | Generated table: plain fetch vs. Bright Data, per robot. | Evidence for "Use of Bright Data" — reproducible, not a screenshot. |
+| `docs/scraped-specs.md` | Generated table of the structured fields extracted from unlocked HTML, with the archetype cross-check. | Shows the unlocked data is actually *used*, not just fetched. |
+| `docs/DATA_SOURCES.md` | Provenance: every source URL, the confidence scale, and corrections made during research. | So any number can be traced back. |
+| `docs/insights.md` | Generated analysis output. | Artifact of `npm run analyze`. |
+| `package.json` | Scripts and metadata. **No `dependencies`.** | Clone and run — no `npm install` needed. |
+| `.gitignore` | Excludes `scraper/.env`, `node_modules/`, scraped HTML evidence, and local working notes. | Keeps secrets and bulk out of the repo. |
+| `LICENSE` | MIT. | |
+| `README.md` | This file. | |
+
+### All commands
+
+```bash
+npm test          # 18 verification checks (no network, no credentials)
+npm run demo      # serve the app at http://localhost:8080
+npm run analyze   # recompute the meta + leaderboard -> docs/insights.md
+npm run specs     # re-parse saved HTML -> docs/scraped-specs.md (no API calls)
+npm run scrape:dry # show exactly what the pipeline would fetch (no credentials needed)
+npm run scrape    # live Bright Data run (needs scraper/.env)
 ```
 
 ## 🧠 The model (transparent by design)
 
-`P(A beats B) = sigmoid( 0.62 · archetypeEdge + 0.38 · reputationEdge )`
+```
+logit = 4.0 · Δ(career win rate)
+      + 1.2 · Δ(KO tendency)
+      + 3.0 · (archetypeEdge − 0.5)
 
-- **archetypeEdge** comes from a matchup matrix encoding observed BattleBots meta (e.g. vertical spinners edge horizontals ~58/42 because they self-right and deliver energy upward).
-- **reputationEdge** is each bot's competitive-pedigree index.
+P(A beats B) = sigmoid(logit)
+```
 
-Every factor is visible in the scouting report — no black box.
+- **Δ(career win rate)** — difference in each robot's win rate; the dominant term.
+- **Δ(KO tendency)** — difference in finishing power, a smaller nudge.
+- **archetypeEdge** — from a weapon matchup matrix encoding the observed meta (e.g. vertical spinners edge horizontals `0.58` because they self-right and drive energy downward). Symmetric by construction: `M[b][a] = 1 − M[a][b]`.
+
+Properties enforced by `npm test`: probabilities stay strictly inside (0,1), `P(A beats B) + P(B beats A) = 1` (max deviation `2.2e-16`), and a robot against itself is exactly 50%. Every factor is spelled out in the scouting report — no black box.
 
 ## 🛣 Roadmap
 
-- Fan-sentiment layer: scrape Reddit / YouTube reactions via Bright Data and weight "hype vs. performance."
-- Live season sync: auto-refresh records after each 2026 Pro League episode.
+- Fan-sentiment layer: scrape Reddit / YouTube reactions via Bright Data and weigh "hype vs. performance".
+- Per-episode refresh of the **structured specs** through the same pipeline as the 2026 season airs. (Career win-loss can't be auto-scraped — those pages carry no such field — so records would stay researched and labelled.)
 
 ## 📄 License
 
